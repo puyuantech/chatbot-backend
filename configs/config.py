@@ -36,3 +36,30 @@ AWS_SECRET_ACCESS_KEY = '+lOx/1qBc'
 AWS_PUBLIC_BUCKET_NAME = 'chat--'
 AWS_PRIVATE_BUCKET_NAME = 'r'
 
+# 微信相关
+WX = {
+    "py_host": "127.0.0.1",
+    "apps": {
+        "chat_bot": {
+            "type": "",
+            "app_id": "",
+            "app_secret": ""
+        }
+    },
+}
+
+CHAT_BOT = {
+    "zidou": {
+        "url": "http://api..com/api/pub",
+        "secret": "",
+        "phone": "",
+        "bot_id": "",
+        "chatroom_name": "@chatroom"
+    },
+    "rsvp": {
+        "url": "https://chatbot.prism-.com/sandbox/chat",
+        "bot_id": 1006055,
+        "share_token": "084aee7d-9b7c--ae69-a81e3fbb2bf8"
+    }
+}
+

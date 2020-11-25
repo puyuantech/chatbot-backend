@@ -1,14 +1,12 @@
 import os
 
 from flask import Flask
-from flasgger import Swagger
 from bases.globals import db, settings
 from bases.converter import RegexConverter
 
 
 def register_extensions(app):
     db.init_app(app)
-    Swagger(app)
     return app
 
 
@@ -50,12 +48,13 @@ def register_logging(app):
     app.logger.addHandler(file_handler_info)
 
 
-def create_app():
+def create_app(**kwargs):
     """
     :return: app
     """
     app = Flask(__name__.split('.')[0])
     app.config = settings
+    app.config.update(**kwargs)
     register_extensions(app)
     register_converter(app)
     register_logging(app)

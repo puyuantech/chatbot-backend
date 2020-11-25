@@ -1,6 +1,5 @@
 # chatbot-backend
 
----
 - 开发启动：python manager.py runserver -h ()  -p () --debug
 - 启动项目：gunicorn -w 1 -k gevent -b 127.0.0.1:8003 manager:app
 ---

@@ -1,9 +1,10 @@
-
-from flask import g, request
+import datetime
+from flask import g, request, current_app
+from bases.globals import db
 from bases.viewhandler import ApiViewHandler
-from bases.exceptions import VerifyError
+from bases.exceptions import VerifyError, LogicError
 from extensions.wx.mini import *
-from models import WeChatUnionID, Token
+from models import WeChatUnionID, Token, ChatbotUserInfo, ChatBotToken
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha
 from .libs import check_login, get_all_user_info, register_user
@@ -71,23 +72,32 @@ class WXMiniLogin(ApiViewHandler):
         user_id = WeChatUnionID.get_user_id(union_info['unionid'])
 
         if not user_id:
-            user = User.register_from_mini(
+            user = ChatbotUserInfo.create(
                 nick_name=user_info.get('nickName'),
                 head_img_url=user_info.get('avatarUrl'),
-                union_id=union_info['unionid'],
-                source=source,
-                advisor_id=advisor_id,
+                last_action_ts=datetime.datetime.now(),
             )
-            user_id = user['user_id']
-
+            try:
+                WeChatUnionID.create(
+                    user_id=user.id,
+                    union_id=union_info['unionid'],
+                )
+            except Exception:
+                import traceback
+                current_app.logger.error(traceback.format_exc())
+                user.delete()
+                raise LogicError('创建失败')
+            user_id = user.id
         else:
-            user = User.login(user_id, brand_id)
-            advisor_id = user_id if user['is_adviser'] else BrandAdvisor.get_advisor_id(user_id, brand_id)
+            user = ChatbotUserInfo.get_by_id(user_id)
+            user.last_action_ts = datetime.datetime.now()
+            user.save()
 
-        token = Token.generate_token(user_id)
-        data = {'msg': '登录成功', 'advisor_id': advisor_id}
-        data.update(user)
-        data.update(token)
+        token_dict = ChatBotToken.generate_token(user_id)
 
-        return SUCCESS_RSP(data=data)
+        data = dict()
+        data['user'] = user.to_dict()
+        data['token'] = token_dict
+
+        return data
 
