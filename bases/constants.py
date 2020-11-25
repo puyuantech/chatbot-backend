@@ -1,0 +1,10 @@
+
+
+# token 过期时间
+TOKEN_EXPIRATION_IN_MINUTES = 60 * 24 * 7
+TOKEN_MAX_NUM = 3
+
+# 图片验证码过期时间
+IMG_CAPTCHA_EXPIRATION_IN_MINUTES = 5
+
+
