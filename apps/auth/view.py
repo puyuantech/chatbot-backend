@@ -60,11 +60,11 @@ class Logic(ApiViewHandler):
 
 class WXMiniLogin(ApiViewHandler):
 
-    @params_required(*['mini_type', 'code', 'iv', 'encrypted_data', 'user_info'])
-    def get(self):
+    @params_required(*['app_name', 'code', 'iv', 'encrypted_data', 'user_info'])
+    def post(self):
         user_info = self.input.user_info
         union_info = WXUnion.get_union_id(
-            self.input.mini_type,
+            self.input.app_name,
             self.input.code,
             self.input.iv,
             self.input.encrypted_data,
@@ -74,7 +74,7 @@ class WXMiniLogin(ApiViewHandler):
         if not user_id:
             user = ChatbotUserInfo.create(
                 nick_name=user_info.get('nickName'),
-                head_img_url=user_info.get('avatarUrl'),
+                head_img=user_info.get('avatarUrl'),
                 last_action_ts=datetime.datetime.now(),
             )
             try:

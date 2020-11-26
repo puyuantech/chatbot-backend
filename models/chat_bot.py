@@ -1,7 +1,7 @@
 import uuid
 import  datetime
 from bases.dbwrapper import db, BaseModel
-from bases.constants import TOKEN_MAX_NUM
+from bases.constants import TOKEN_MAX_NUM, TOKEN_EXPIRATION_IN_MINUTES
 
 
 class ChatbotUserInfo(BaseModel):
@@ -17,9 +17,7 @@ class ChatbotUserInfo(BaseModel):
     last_action_ts = db.Column(db.DATETIME)                               # 最新活动时间戳
 
     def readable_expertise(self):
-        if self.expertise < 0:
-            return '未评测'
-        elif self.expertise < 0.15:
+        if self.expertise < 0.15:
             return '低'
         elif self.expertise < 0.35:
             return '较低'
@@ -31,9 +29,7 @@ class ChatbotUserInfo(BaseModel):
             return '高'
 
     def readable_risk_tolerance(self):
-        if self.risk_tolerance < 0:
-            return '未评测'
-        elif self.risk_tolerance < 0.15:
+        if self.risk_tolerance < 0.15:
             return '低'
         elif self.risk_tolerance < 0.35:
             return '较低'

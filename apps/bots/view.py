@@ -172,3 +172,29 @@ def _get_wechat_group_list():
     data = self_logic.get_wechat_group_list()
     return SUCCESS_RSP(data)
 
+
+@api.route("/api/v1/chatbot/statistics/user_expertise", methods=["GET"])
+def _get_user_expertise():
+    """查询用户专业度分布统计"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    data = self_logic.get_user_expertise()
+    return SUCCESS_RSP(data)
+
+
+@api.route("/api/v1/chatbot/statistics/user_risk_tolerance", methods=["GET"])
+def _get_user_risk_tolerance():
+    """查询用户风险承受能力分布统计"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    data = self_logic.get_user_risk_tolerance()
+    return SUCCESS_RSP(data)
+
+
+@api.route("/api/v1/chatbot/statistics/user_dialog_count", methods=["GET"])
+def _get_user_dialog_count():
+    """查询用户对话量分布统计"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    data = self_logic.get_user_dialog_count()
+    return SUCCESS_RSP(data)

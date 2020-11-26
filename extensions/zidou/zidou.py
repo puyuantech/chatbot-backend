@@ -1,4 +1,3 @@
-
 import json
 import time
 import random
@@ -28,12 +27,13 @@ class ZiDou(object):
         '''
         temp_json = dict()
         temp_json.update(data)
-        pre_list = [str(k) + '=' + str(v) for k, v in temp_json.items()] 
+        pre_list = [str(k) + '=' + str(v) for k, v in temp_json.items()]
         pre_list.sort()
-        pre_str = '&'.join(pre_list) 
+        pre_str = '&'.join(pre_list)
         pre_str = pre_str + self.secret
-        m = hashlib.md5() 
-        m.update(pre_str.encode()) 
+        # print(pre_str)
+        m = hashlib.md5()
+        m.update(pre_str.encode())
         return m.hexdigest()
 
     def get_request_params(self, function, action, params):
@@ -45,8 +45,8 @@ class ZiDou(object):
             'action': action,
             'params': json.dumps(params)
         }
-        sign = self.get_sign(data) 
-        data.update({'sign': sign}) 
+        sign = self.get_sign(data)
+        data.update({'sign': sign})
         return data
 
     def get_chat_log(self, chatroom_name, start_ts, end_ts, page_id=1):
@@ -65,7 +65,7 @@ class ZiDou(object):
             'pagesize': pagesize
         }
         req_data = self.get_request_params(func, action, params)
-        resp = requests.post(self.url, req_data).json()
+        resp = requests.post(self.url, json=req_data).json()
 
         records = []
         if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get('records'):
@@ -77,7 +77,7 @@ class ZiDou(object):
 
         more_records = self.get_chat_log(chatroom_name, start_ts, end_ts, page_id + 1)
         records.extend(more_records)
-        
+
         return records
 
     def get_member_info(self, chatroom_name):
@@ -91,11 +91,12 @@ class ZiDou(object):
             'invite': 0,
         }
         req_data = self.get_request_params(func, action, params)
-        resp = requests.post(self.url, req_data).json()
+        resp = requests.post(self.url, json=req_data).json()
 
         member_info_dict = {}
         # print(resp.get('content'))
-        if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get('members_info_dict'):
+        if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get(
+                'members_info_dict'):
             return member_info_dict
 
         raw_member_info_dict = resp['content']['members_info_dict']
@@ -103,7 +104,7 @@ class ZiDou(object):
             nickname = value.get('nickname')
             if not nickname:
                 nickname = value.get('quan_pin', '')
-                
+
             avatar_url = value.get('avatar_url', '')
 
             member_info_dict[key] = {
@@ -125,10 +126,11 @@ class ZiDou(object):
             'pagesize': pagesize
         }
         req_data = self.get_request_params(func, action, params)
-        resp = requests.post(self.url, req_data).json()
+        resp = requests.post(self.url, json=req_data).json()
 
         chatroom_list = []
-        if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get('chatroom_list'):
+        if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get(
+                'chatroom_list'):
             return chatroom_list
 
         chatroom_list = resp['content']['chatroom_list']
@@ -137,7 +139,7 @@ class ZiDou(object):
 
         more_chatrooms = self.get_chatroom_list(page_id + 1)
         chatroom_list.extend(more_chatrooms)
-        
+
         return chatroom_list
 
     def send_text_message(self, chatroom_name, content):
@@ -157,7 +159,7 @@ class ZiDou(object):
         }
         req_data = self.get_request_params(func, action, params)
 
-        resp = requests.post(self.url, req_data)
+        resp = requests.post(self.url, json=req_data)
         return resp
 
     def send_link_message(self, chatroom_name, title, source_url):
@@ -177,7 +179,7 @@ class ZiDou(object):
         }
         req_data = self.get_request_params(func, action, params)
 
-        resp = requests.post(self.url, req_data)
+        resp = requests.post(self.url, json=req_data)
         return resp
 
     def at_somebody(self, chatroom_name, username, msg_front, msg_after):
@@ -193,8 +195,8 @@ class ZiDou(object):
             'msg_after': msg_after
         }
         req_data = self.get_request_params(func, action, params)
-
-        resp = requests.post(self.url, req_data)
+        # print(req_data)
+        resp = requests.post(self.url, json=req_data)
         return resp
 
     def set_chatroom_msg_callback(self, url):
@@ -208,5 +210,5 @@ class ZiDou(object):
         }
         req_data = self.get_request_params(func, action, params)
 
-        resp = requests.post(self.url, req_data)
+        resp = requests.post(self.url, json=req_data)
         return resp
