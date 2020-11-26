@@ -17,10 +17,6 @@ from .constants import Operation
 
 
 class ChatbotLogic:
-    index_list_url: str = settings['WX']['py_host'] + '/m/#/mp/indices'
-    sector_list_url: str = settings['WX']['py_host'] + '/m/#/mp/sectors'
-    index_detail_url: str = settings['WX']['py_host'] + '/m/#/mp/index/{}'
-    sector_detail_url: str = settings['WX']['py_host'] + '/m/#/mp/sector/{}'
 
     def __init__(self, logger):
         conf = settings['THIRD_SETTING']
