@@ -1,14 +1,6 @@
 
 SECRET_KEY = '\x19r<\xb8\x82\xe9e\xc9\xf1\xaf\xe4\x8f\x86Dx]%\x123\xcd\x91\xac'
 
-# redis
-REDIS_URL = 'redis://:{}@{}:{}/{}'.format(
-    '',
-    '39.98.109.26',
-    6379,
-    0,
-)
-
 # mysql设置
 DB_URI = "mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4".format(
     '',
