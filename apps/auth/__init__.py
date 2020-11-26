@@ -9,5 +9,5 @@ api.add_resource(LoginAPI, '/login')
 api.add_resource(Logout, '/logout')
 # api.add_resource(RegisterAPI, '/register')
 api.add_resource(Logic, '/logic')
-api.add_resource(WXMiniLogin, '/wx_login')
+api.add_resource(WXMiniLogin, '/mini_login')
 
