@@ -14,7 +14,8 @@ prism_api.register(blu)
 @blu.errorhandler(Exception)
 def _handle_exception(e):
     """错误处理"""
-    current_app.logger.error(traceback.format_exc)
+    current_app.logger.error(e)
+    current_app.logger.error(traceback.format_exc())
     if isinstance(e, BaseError):
         return ERROR_RSP('', e.msg, e.code, e.status)
     return ERROR_RSP('server error', 'server error', 1005, 500)

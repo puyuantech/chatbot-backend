@@ -53,9 +53,10 @@ class WXUnion:
         assert content.get('unionid'), '[get_union_id_by_token] failed to get union_id (errcode){} (errmsg){}'.format(content.get('errcode'), content.get('errmsg'))
         return content
 
-    def get_union_id(self, app_name, *params):
+    @classmethod
+    def get_union_id(cls, app_name, *params):
         assert 'WX' in settings, f'could not find "WX" setting in wechat apps config'
-        config = settings['WX']
+        config = settings['WX']['apps']
 
         assert app_name in config, f'could not find "{app_name}" setting in wechat apps config'
         app_type = config[app_name]['type']
@@ -66,3 +67,4 @@ class WXUnion:
             return WXUnion.get_union_id_by_mini(app_id, app_secret, *params)
         else:
             return WXUnion.get_union_id_by_token(app_id, app_secret, *params)
+

@@ -132,7 +132,7 @@ class ChatbotLogic:
                 'head_img': user.head_img
             }
 
-        q = mn_session.query(
+        q = db.session.query(
             ChatbotDialog
         ).filter(
             ChatbotDialog.wechat_group_id == wechat_group_id
@@ -158,13 +158,15 @@ class ChatbotLogic:
             ChatbotUserStat
         )
         if start:
-            q = q.filter(ChatbotUserStat.ts >= start)
+            start = datetime.fromisoformat(start)
+            q = q.filter(ChatbotUserStat.ts >= start - timedelta(days=1))
         if end:
+            end = datetime.fromisoformat(end)
             q = q.filter(ChatbotUserStat.ts <= end)
         user_counts = q.all()
 
-        min_ts = datetime.fromisoformat(start) if start else None
-        max_ts = datetime.fromisoformat(end) if end else None
+        min_ts = start
+        max_ts = end
         user_count_dict = {}
         active_user_count_dict = {}
         for item in user_counts:
@@ -177,20 +179,87 @@ class ChatbotLogic:
 
         ts_list = []
         user_count_list = []
+        new_user_count_list = []
         active_user_count_list = []
         cur_ts = min_ts
+        last_user_count = 0
         if min_ts and max_ts:
+            if not start or min_ts == start:
+                last_user_count = 0
+            else:
+                cur_ts = start
             while cur_ts <= max_ts:
                 ts_list.append(cur_ts)
-                user_count_list.append(user_count_dict.get(cur_ts, 0))
+                yesterday = cur_ts - timedelta(days=1)
+                user_count = max(user_count_dict.get(cur_ts, 0), last_user_count)
+                user_count_list.append(user_count)
+                new_user_count_list.append(user_count - last_user_count)
                 active_user_count_list.append(active_user_count_dict.get(cur_ts, 0))
+                last_user_count = user_count
                 cur_ts += timedelta(days=1)
 
         return {
             'ts': ts_list,
             'user_count': user_count_list,
+            'new_user_count': new_user_count_list,
             'active_user_count': active_user_count_list
         }
+
+    def get_user_expertise(self):
+        result = {}
+        expertise_levels = ['低', '较低', '中等', '较高', '高']
+        for level in expertise_levels:
+            result[level] = 0
+
+        users = db.session.query(
+            ChatbotUserInfo
+        ).all()
+
+        for user in users:
+            user_expertise = ChatbotUserInfo.readable_expertise(user)
+            result[user_expertise] += 1
+
+        return result
+
+    def get_user_risk_tolerance(self):
+        result = {}
+        risk_tolerance_levels = ['低', '较低', '中等', '较高', '高']
+        for level in risk_tolerance_levels:
+            result[level] = 0
+
+        users = db.session.query(
+            ChatbotUserInfo
+        ).all()
+
+        for user in users:
+            user_risk_tolerance = ChatbotUserInfo.readable_risk_tolerance(user)
+            result[user_risk_tolerance] += 1
+
+        return result
+
+    def get_user_dialog_count(self):
+        result = {}
+        dialog_count_levels = ['[0, 10]', '(10, 100]', '(100, 1000]', '(1000, max]']
+        for level in dialog_count_levels:
+            result[level] = 0
+
+        dialog_counts = db.session.query(
+            func.sum(ChatbotDialogStat.dialog_count),
+        ).group_by(
+            ChatbotDialogStat.user_id
+        ).all()
+
+        for dialog_count, in dialog_counts:
+            if dialog_count < 10:
+                result['[0, 10]'] += 1
+            elif dialog_count < 100:
+                result['(10, 100]'] += 1
+            elif dialog_count < 1000:
+                result['(100, 1000]'] += 1
+            else:
+                result['(1000, max]'] += 1
+
+        return result
 
     def get_dialog_count(self, user_id=None, start=None, end=None):
         q = db.session.query(
