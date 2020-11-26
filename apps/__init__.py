@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 from bases.globals import db, settings
-from bases.converter import RegexConverter
+from bases.converter import RegexConverter, PathConverter
 
 
 def register_extensions(app):
@@ -12,6 +12,7 @@ def register_extensions(app):
 
 def register_converter(app):
     app.url_map.converters['re'] = RegexConverter
+    app.url_map.converters['pa'] = PathConverter
     return app
 
 

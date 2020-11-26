@@ -9,7 +9,7 @@ from bases.exceptions import LogicError
 api = RedPrint('api/v1/chatbot')
 
 
-@api.route('/<path:uri>', methods=['GET', 'POST'])
+@api.route('/<pa:uri>', methods=['GET', 'POST'])
 def proxy_to_prism(uri):
     path = re.match('.*?(/api/v1/chatbot.*)', request.url).groups()
     path = path[0] if path else ''
