@@ -1,0 +1,14 @@
+flask==1.1.2
+flask_script==2.0.6
+flask_sqlalchemy==2.4.4
+flask_migrate==2.5.3
+flask_restful==0.3.8
+ujson
+pymysql
+pillow
+gunicorn
+requests
+gevent
+pycryptodome >= 3.9.8
+boto3
+pyjwt
