@@ -36,6 +36,12 @@ AWS_SECRET_ACCESS_KEY = '+lOx/1qBc'
 AWS_PUBLIC_BUCKET_NAME = 'chat--'
 AWS_PRIVATE_BUCKET_NAME = 'r'
 
+# prism 数据地址
+PRISM_HOST = 'https://www.prism-advisor.com'
+PRISM_PLATFORM = ''
+PRISM_SECRET = ''
+PRISM_CONSTANT = ''
+
 # 微信相关
 WX = {
     "py_host": "127.0.0.1",
@@ -59,7 +65,7 @@ CHAT_BOT = {
     "rsvp": {
         "url": "https://chatbot.prism-.com/sandbox/chat",
         "bot_id": 1006055,
-        "share_token": "084aee7d-9b7c--ae69-a81e3fbb2bf8"
+        "share_token": "084aee7d-9b7c--ae69-a81e3fbb2bf8",
     }
 }
 

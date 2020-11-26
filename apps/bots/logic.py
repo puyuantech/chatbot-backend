@@ -1,7 +1,6 @@
 import json
-from flask import current_app
 from datetime import datetime, timedelta
-from sqlalchemy import desc, func, text
+from sqlalchemy import func, text
 
 from bases.globals import settings, db
 from models import (
@@ -23,7 +22,7 @@ class ChatbotLogic:
     index_detail_url: str = settings['WX']['py_host'] + '/m/#/mp/index/{}'
     sector_detail_url: str = settings['WX']['py_host'] + '/m/#/mp/sector/{}'
 
-    def __init__(self):
+    def __init__(self, logger):
         conf = settings['THIRD_SETTING']
         zidou_conf = conf['zidou']
         self.zidou_bot_id = zidou_conf['bot_id']
@@ -31,8 +30,8 @@ class ChatbotLogic:
         self.zidou_chatroom_member_info = {}
 
         rsvp_conf = conf['rsvp']
-        self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], current_app.logger)
-        self.logger = current_app.logger
+        self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], logger)
+        self.logger = logger
 
     def get_user_list(self, top_n, wechat_group_id):
         q = db.session.query(

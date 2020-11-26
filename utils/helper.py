@@ -41,13 +41,10 @@ class ShareTokenAuth:
         :param secret_key:
         :return: string
         """
-        try:
-            return jwt.encode(
-                payload,
-                secret_key,
-            )
-        except Exception as e:
-            return e
+        return jwt.encode(
+            payload,
+            secret_key,
+        )
 
     @staticmethod
     def decode(token, secret_key):
@@ -58,17 +55,40 @@ class ShareTokenAuth:
         :return: integer|string
         """
         try:
-            payload = jwt.decode(token, secret_key, leeway=datetime.timedelta(days=1))
+            payload = jwt.decode(token, secret_key, leeway=datetime.timedelta(minutes=1))
             # 取消过期时间验证
-            # payload = jwt.decode(auth_token, Config.SECRET_KEY, options={'verify_exp': False})
+            # payload = jwt.decode(auth_token, secret_key, options={'verify_exp': False})
             # 参数对验证
             if 'data' in payload:
-                return payload
+                return True, payload
             raise jwt.InvalidTokenError
         except jwt.ExpiredSignatureError:
-            return 'Token过期'
+            return False, 'Token过期'
         except jwt.InvalidTokenError:
-            return '无效Token'
+            return False, '无效Token'
+
+
+def _RESPONSE(data, msg, code, status_code):
+    from flask import jsonify
+    rsp = {
+        'code': code,
+        'data': data,
+        'msg': msg,
+    }
+
+    return jsonify(rsp), status_code
+
+
+def SUCCESS_RSP(data="success", msg=None):
+    return _RESPONSE(data, msg, 1000, 200)
+
+
+def ACCEPTED_RSP(data="success", msg=None):
+    return _RESPONSE(data, msg, 1000, 202)
+
+
+def ERROR_RSP(data=None, msg=None, code=None, status_code=400):
+    return _RESPONSE(data, msg, code, status_code)
 
 
 def generate_sql_pagination():
@@ -83,5 +103,12 @@ def generate_sql_pagination():
     return SQLPagination(page, page_size, ordering)
 
 
+if __name__ == '__main__':
+    code = ShareTokenAuth.encode(
+        {'data': {'name': 1}},
+        '1'
+    )
+    print(code)
+    print(ShareTokenAuth.decode(code, '1'))
 
 
