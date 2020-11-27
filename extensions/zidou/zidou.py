@@ -3,7 +3,7 @@ import time
 import random
 import hashlib
 import requests
-from ...utils.helper import Singleton
+from utils.helper import Singleton
 
 
 class ZiDou(metaclass=Singleton):
