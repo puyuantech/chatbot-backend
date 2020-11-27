@@ -53,6 +53,7 @@ class RegisterAPI(ApiViewHandler):
 class Logic(ApiViewHandler):
 
     def get(self):
+        current_app.logger.info(request.headers)
         print(request.headers)
         print(request.data)
         print(request)

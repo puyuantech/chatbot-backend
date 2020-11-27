@@ -30,8 +30,8 @@ class PathConverter(BaseConverter):
     """Like the default :class:`UnicodeConverter`, but it also matches
     slashes.  This is useful for wikis and similar applications::
 
-        Rule('/<path:wikipage>')
-        Rule('/<path:wikipage>/edit')
+        Rule('/<pa:wikipage>')
+        Rule('/<pa:wikipage>/edit')
 
     :param map: the :class:`Map`.
     """

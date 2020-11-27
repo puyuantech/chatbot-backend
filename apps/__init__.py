@@ -45,7 +45,7 @@ def register_logging(app):
         backupCount=app.config['LOG_FILE_BACKUP_COUNT']
     )
     file_handler_info.setFormatter(formatter)
-    file_handler_info.setLevel(logging.INFO)
+    logging.basicConfig(level=app.config.get('LOG_LEVEL', 'INFO'))
     app.logger.addHandler(file_handler_info)
 
 
