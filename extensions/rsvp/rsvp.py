@@ -3,9 +3,10 @@ import time
 import random
 import hashlib
 import requests
+from utils.helper import Singleton
 
 
-class Rsvp(object):
+class Rsvp(metaclass=Singleton):
 
     def __init__(self, url, bot_id, share_token, logger=None):
         self.url = url

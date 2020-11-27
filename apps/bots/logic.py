@@ -23,7 +23,6 @@ class ChatbotLogic:
         zidou_conf = conf['zidou']
         self.zidou_bot_id = zidou_conf['bot_id']
         self.zidou = ZiDou(zidou_conf['url'], zidou_conf['secret'], zidou_conf['phone'])
-        self.zidou_chatroom_member_info = {}
 
         rsvp_conf = conf['rsvp']
         self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], logger)
@@ -480,18 +479,17 @@ class ChatbotLogic:
         if username == bot_username:
             return
 
-        if chatroomname not in self.zidou_chatroom_member_info or username not in self.zidou_chatroom_member_info[
-            chatroomname]:
-            self.zidou_chatroom_member_info[chatroomname] = self.zidou.get_member_info(chatroomname)
-            if username not in self.zidou_chatroom_member_info[chatroomname]:
+        if username not in self.zidou.chatroom_member_info.get(chatroomname, {}):
+            chatroom_member_info = self.zidou.update_member_info(chatroomname)
+            if username not in chatroom_member_info:
                 return
 
         if msg_type != 'text' or not content:
             return
 
         ts = datetime.now()
-        nick_name = self.zidou_chatroom_member_info[chatroomname][username]['nickname']
-        avatar_url = self.zidou_chatroom_member_info[chatroomname][username]['avatar_url']
+        nick_name = self.zidou.chatroom_member_info[chatroomname][username]['nickname']
+        avatar_url = self.zidou.chatroom_member_info[chatroomname][username]['avatar_url']
         user_id = self._get_user(ts, wechat_user_name=username, nick_name=nick_name, avatar_url=avatar_url)
         if not user_id:
             return
@@ -537,11 +535,23 @@ class ChatbotLogic:
         chatroom_list = self.zidou.get_chatroom_list()
         result = []
         for chatroom in chatroom_list:
+            chatroomname = chatroom.get('chatroomname')
+            roomowner = chatroom.get('roomowner')
+            owner_nick_name = None
+            owner_avatar_url = None
+            if roomowner not in self.zidou.chatroom_member_info.get(chatroomname, {}):
+                chatroom_member_info = self.zidou.update_member_info(chatroomname)
+
+                owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
+                owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
+
             result.append({
                 'nick_name': chatroom.get('nickname'),
-                'id': chatroom.get('chatroomname'),
+                'id': chatroomname,
                 'avatar_url': chatroom.get('avatar_url'),
-                'member_count': chatroom.get('member_count')
+                'member_count': chatroom.get('member_count'),
+                'owner_nick_name': owner_nick_name,
+                'owner_avatar_url': owner_avatar_url
             })
         return result
 
