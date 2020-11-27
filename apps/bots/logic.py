@@ -58,18 +58,13 @@ class ChatbotLogic:
         if wechat_group_id or top_n:
             q = q.filter(ChatbotUserInfo.id.in_(user_dialog_count.keys()))
         all_user_info = q.all()
-        result_dict = {}
         for user in all_user_info:
             user_dict = user.to_dict(remove_fields_list=['update_time', 'wechat_user_name'])
             user_dict['user_id'] = user_dict.pop('id')
             user_dict.update({
                 "dialog_count": int(user_dialog_count.get(user.id, 0))
             })
-            result_dict[user.id] = user_dict
-
-        for user_id in user_dialog_count.keys():
-            if user_id in result_dict:
-                result.append(result_dict[user_id])
+            result.append(user_dict)
 
         return result
 
