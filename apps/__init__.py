@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 from bases.globals import db, settings
-from bases.converter import RegexConverter
+from bases.converter import RegexConverter, PathConverter
 
 
 def register_extensions(app):
@@ -12,6 +12,7 @@ def register_extensions(app):
 
 def register_converter(app):
     app.url_map.converters['re'] = RegexConverter
+    app.url_map.converters['pa'] = PathConverter
     return app
 
 
@@ -44,7 +45,7 @@ def register_logging(app):
         backupCount=app.config['LOG_FILE_BACKUP_COUNT']
     )
     file_handler_info.setFormatter(formatter)
-    file_handler_info.setLevel(logging.INFO)
+    logging.basicConfig(level=app.config.get('LOG_LEVEL', 'INFO'))
     app.logger.addHandler(file_handler_info)
 
 

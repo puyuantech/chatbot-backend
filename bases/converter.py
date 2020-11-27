@@ -25,3 +25,16 @@ class RegexConverter(BaseConverter):
         val = super(RegexConverter, self).to_url(value)
         return val
 
+
+class PathConverter(BaseConverter):
+    """Like the default :class:`UnicodeConverter`, but it also matches
+    slashes.  This is useful for wikis and similar applications::
+
+        Rule('/<pa:wikipage>')
+        Rule('/<pa:wikipage>/edit')
+
+    :param map: the :class:`Map`.
+    """
+
+    regex = "[^/].*?"
+    weight = 20

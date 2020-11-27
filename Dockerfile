@@ -1,5 +1,8 @@
 FROM python:3.7.5
+LABEL name="chatbot-backend"
+LABEL maintainer="puyuan<github@puyuan.tech>"
 
+ENV TZ=Asia/Shanghai
 COPY . /app
 WORKDIR /app
 RUN pip install -r requirements.txt -i https://pypi.douban.com/simple
