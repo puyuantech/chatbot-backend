@@ -63,7 +63,7 @@ class ChatbotLogic:
             user_dict = user.to_dict(remove_fields_list=['update_time', 'wechat_user_name'])
             user_dict['user_id'] = user_dict.pop('id')
             user_dict.update({
-                "dialog_count": int(user_dialog_count[user.id])
+                "dialog_count": int(user_dialog_count.get(user.id, 0))
             })
             result_dict[user.id] = user_dict
 

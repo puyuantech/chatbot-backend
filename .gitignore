@@ -136,3 +136,4 @@ config_local.py
 config_local.json
 local_config.py
 local.py
+.vscode/*
