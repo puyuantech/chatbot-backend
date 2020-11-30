@@ -17,3 +17,6 @@ class Operation(EnumBase):
     set = 'set'
     update = 'update'
 
+class TagType(EnumBase):
+    expertise = 'expertise'
+    risk_tolerance = 'risk_tolerance'

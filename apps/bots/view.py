@@ -131,10 +131,10 @@ def _update_user_tag():
     self_logic = ChatbotLogic(current_app.logger)
 
     rsvp_user_id = request.json.get('rsvp_user_id')
-    expertise = request.json.get('expertise')
-    risk_tolerance = request.json.get('risk_tolerance')
+    tag_type = request.json.get('tag_type')
+    tag_value = request.json.get('tag_value')
     operation = request.json.get('operation')
-    self_logic.update_user_tag(rsvp_user_id, expertise, risk_tolerance, operation)
+    self_logic.update_user_tag(rsvp_user_id, tag_type, tag_value, operation)
     return SUCCESS_RSP()
 
 
