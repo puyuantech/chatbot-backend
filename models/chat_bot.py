@@ -8,13 +8,13 @@ class ChatbotUserInfo(BaseModel):
     '''对话机器人用户信息'''
     __tablename__ = 'chatbot_user_info'
 
-    id = db.Column(db.Integer, primary_key=True)                          # 数据行编号
-    wechat_user_name = db.Column(db.CHAR(32), default='')                 # 用户微信号
-    nick_name = db.Column(db.CHAR(32), default='')                        # 昵称
-    head_img = db.Column(db.Text, default='')                             # 头像
-    expertise = db.Column(db.FLOAT, default=0)         # 用户专业度，-1或者[0, 1.0]间，-1表示未初始化，其余值越大代表越专业
-    risk_tolerance = db.Column(db.FLOAT, default=0)    # 用户风险承受能力，-1或者[0, 1.0]间，-1表示未初始化，其余值越大代表风险承受能力越强
-    last_action_ts = db.Column(db.DATETIME)                               # 最新活动时间戳
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    wechat_user_name = db.Column(db.CHAR(32), default='')       # 用户微信号
+    nick_name = db.Column(db.CHAR(32), default='')              # 昵称
+    head_img = db.Column(db.Text, default='')                   # 头像
+    expertise = db.Column(db.FLOAT, default=0)                  # 用户专业度，-1或者[0, 1.0]间，-1表示未初始化，其余值越大代表越专业
+    risk_tolerance = db.Column(db.FLOAT, default=0)             # 用户风险承受能力，-1或者[0, 1.0]间，-1表示未初始化，其余值越大代表风险承受能力越强
+    last_action_ts = db.Column(db.DATETIME)                     # 最新活动时间戳
 
     def readable_expertise(self):
         if self.expertise < 0.15:
@@ -53,10 +53,10 @@ class ChatBotToken(BaseModel):
     """
     __tablename__ = "chatbot_tokens"
 
-    id = db.Column(db.Integer, primary_key=True)      # 编号
-    key = db.Column(db.String(32))                         # key值
-    refresh_key = db.Column(db.String(32))                 # 刷新key值
-    expires_at = db.Column(db.DateTime, nullable=False)  # 过期时间
+    id = db.Column(db.Integer, primary_key=True)                # 编号
+    key = db.Column(db.String(32))                              # key值
+    refresh_key = db.Column(db.String(32))                      # 刷新key值
+    expires_at = db.Column(db.DateTime, nullable=False)         # 过期时间
     user_id = db.Column(db.Integer, db.ForeignKey('chatbot_user_info.id'))
     user = db.relationship('ChatbotUserInfo', backref='token')
 
@@ -102,58 +102,59 @@ class ChatbotDialogStat(BaseModel):
     '''对话机器人对话量日度统计'''
     __tablename__ = 'chatbot_dialog_stat'
 
-    id = db.Column(db.Integer, primary_key=True)                          # 数据行编号
-    user_id = db.Column(db.Integer)                                       # 用户ID
-    dialog_count = db.Column(db.Integer)                                  # 用户对话数
-    ts = db.Column(db.DATETIME)                                           # 时间戳
-    wechat_group_id = db.Column(db.CHAR(32))                              # 微信群ID（如有）
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    user_id = db.Column(db.Integer)                             # 用户ID
+    dialog_count = db.Column(db.Integer)                        # 用户对话数
+    ts = db.Column(db.DATETIME)                                 # 时间戳
+    wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID（如有）
 
 
 class ChatbotUserStat(BaseModel):
     '''对话机器人用户数日度统计'''
     __tablename__ = 'chatbot_user_stat'
 
-    id = db.Column(db.Integer, primary_key=True)                          # 数据行编号
-    user_count = db.Column(db.Integer)                                    # 总用户数
-    active_user_count = db.Column(db.Integer)                             # 活跃用户数
-    ts = db.Column(db.DATETIME)                                           # 时间戳
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    user_count = db.Column(db.Integer)                          # 总用户数
+    active_user_count = db.Column(db.Integer)                   # 活跃用户数
+    ts = db.Column(db.DATETIME)                                 # 时间戳
 
 
 class ChatbotDialog(BaseModel):
     '''对话机器人用户对话'''
     __tablename__ = 'chatbot_dialog'
 
-    id = db.Column(db.Integer, primary_key=True)              # 数据行编号
-    user_id = db.Column(db.Integer)                           # 用户ID
-    user_input = db.Column(db.Text)                           # 用户输入
-    bot_reply = db.Column(db.Text)                            # 机器人回答
-    bot_raw_reply = db.Column(db.Text)                        # 机器人原始回答
-    similarity = db.Column(db.FLOAT(asdecimal=False))        # 用户输入与模型匹配分数
-    session_id = db.Column(db.CHAR(32))                       # 会话ID
-    ts = db.Column(db.DATETIME)                               # 对话时间戳
-    wechat_group_id = db.Column(db.CHAR(32))                  # 微信群ID（如有）
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    user_id = db.Column(db.Integer)                             # 用户ID
+    user_input = db.Column(db.Text)                             # 用户输入
+    bot_reply = db.Column(db.Text)                              # 机器人回答
+    bot_raw_reply = db.Column(db.Text)                          # 机器人原始回答
+    similarity = db.Column(db.FLOAT(asdecimal=False))           # 用户输入与模型匹配分数
+    session_id = db.Column(db.CHAR(32))                         # 会话ID
+    ts = db.Column(db.DATETIME)                                 # 对话时间戳
+    wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID（如有）
 
 
 class ChatbotProductView(BaseModel):
     '''对话机器人产品访问'''
     __tablename__ = 'chatbot_product_view'
 
-    id = db.Column(db.Integer, primary_key=True)              # 数据行编号
-    user_id = db.Column(db.Integer)                           # 用户ID
-    product_id = db.Column(db.CHAR(32))                       # 产品ID
-    product_type = db.Column(db.CHAR(32))                     # 产品类型
-    product_name = db.Column(db.CHAR(64))                     # 产品名称
-    ts = db.Column(db.DATETIME)                               # 产品访问时间戳
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    user_id = db.Column(db.Integer)                             # 用户ID
+    wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID（如有）
+    product_id = db.Column(db.CHAR(32))                         # 产品ID
+    product_type = db.Column(db.CHAR(32))                       # 产品类型
+    product_name = db.Column(db.CHAR(64))                       # 产品名称
+    ts = db.Column(db.DATETIME)                                 # 产品访问时间戳
 
 
 class ChatbotProductDailyView(BaseModel):
     '''对话机器人产品访问量日度统计'''
     __tablename__ = 'chatbot_product_daily_view'
 
-    id = db.Column(db.Integer, primary_key=True)                          # 数据行编号
-    user_id = db.Column(db.Integer)                                       # 用户ID
-    product_view_count = db.Column(db.Integer)                            # 用户产品访问量
-    ts = db.Column(db.DATETIME)                                           # 时间戳
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    user_id = db.Column(db.Integer)                             # 用户ID
+    product_view_count = db.Column(db.Integer)                  # 用户产品访问量
+    ts = db.Column(db.DATETIME)                                 # 时间戳
 
 
 # class ChatbotProductStat(BaseDataModel, DBMixin):
@@ -164,5 +165,5 @@ class ChatbotProductDailyView(BaseModel):
 #     product_id = db.Column(db.CHAR(32))                       # 产品ID
 #     product_type = db.Column(db.CHAR(32))                     # 产品类型
 #     view_count = db.Column(db.Integer, default=0)             # 产品访问次数
-#     ts = db.Column(DATETIME)                               # 产品访问时间戳
+#     ts = db.Column(DATETIME)                                  # 产品访问时间戳
 

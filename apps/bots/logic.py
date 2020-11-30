@@ -291,7 +291,7 @@ class ChatbotLogic:
             'dialog_count': dialog_count_list
         }
 
-    def get_product_view_count(self, user_id=None, start=None, end=None, top_n=None):
+    def get_product_view_count(self, user_id=None, wechat_group_id=None, start=None, end=None, top_n=None):
         q = db.session.query(
             ChatbotProductView.product_id,
             ChatbotProductView.product_type,
@@ -306,6 +306,8 @@ class ChatbotLogic:
 
         if user_id:
             q = q.filter(ChatbotProductView.user_id == user_id)
+        if wechat_group_id:
+            q = q.filter(ChatbotProductView.wechat_group_id == wechat_group_id)
         if start:
             q = q.filter(ChatbotProductView.ts >= start)
         if end:
@@ -436,7 +438,7 @@ class ChatbotLogic:
 
         db.session.commit()
 
-    def update_user_product_view(self, rsvp_user_id, product_id, product_type, product_name, ts):
+    def update_user_product_view(self, rsvp_user_id, wechat_group_id, product_id, product_type, product_name, ts):
         # Valid rsvp_user_id is from Prism or Wechat Group, and skip user from other sources
         #   rsvp_user_id (from Prism) sample: openidprism_123
         #   rsvp_user_id (from Wechat Group) sample: openidgroup_xxx
@@ -455,12 +457,14 @@ class ChatbotLogic:
             product_name=product_name,
             ts=ts
         )
+        if wechat_group_id:
+            user_product_view.wechat_group_id = wechat_group_id
 
         db.session.add(user_product_view)
         db.session.commit()
 
         # Update product view statistics
-        self._update_product_stat(user_id, ts.date())
+        self._update_product_stat(user_id, wechat_group_id, ts.date())
 
     def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict):
         if not json_dict:
@@ -512,7 +516,7 @@ class ChatbotLogic:
         if resp.get('topic', 'fallback') == 'fallback':
             return
 
-        similarity, bot_reply = self._parse_rsvp_response_stages(resp.get('stage', []))
+        similarity, bot_reply = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
         self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
@@ -559,7 +563,7 @@ class ChatbotLogic:
         return result
 
     # Helper functions
-    def _parse_rsvp_response_stages(self, stages):
+    def _parse_rsvp_response_stages(self, stages, wechat_group_id=None):
         # TODO: get similarity from stages
         similarity = None
         reply = ''
@@ -575,7 +579,10 @@ class ChatbotLogic:
                 if 'text' in link:
                     reply += link['text'] + '：'
                 if 'url' in link:
-                    reply += link['url'] + '\n'
+                    if wechat_group_id:
+                        reply += link['url'] + f'&group={wechat_group_id}\n'
+                    else:
+                        reply += link['url'] + f'\n'
             if 'cards' in stage:
                 cards = stage['cards']
                 for card in cards.get('cards', []):
@@ -716,19 +723,25 @@ class ChatbotLogic:
 
         db.session.commit()
 
-    def _update_product_stat(self, user_id, ts):
-        chatbot_product_daily_view = db.session.query(
+    def _update_product_stat(self, user_id, wechat_group_id, ts):
+        query = db.session.query(
             ChatbotProductDailyView
         ).filter_by(
             user_id=user_id,
             ts=ts,
-        ).one_or_none()
+        )
+        if wechat_group_id:
+            query = query.filter(ChatbotProductDailyView.wechat_group_id == wechat_group_id)
+        
+        chatbot_product_daily_view = query.one_or_none()
         if not chatbot_product_daily_view:
             chatbot_product_daily_view = ChatbotProductDailyView(
                 product_view_count=1,
                 user_id=user_id,
                 ts=ts,
             )
+            if wechat_group_id:
+                chatbot_product_daily_view.wechat_group_id = wechat_group_id
             db.session.add(chatbot_product_daily_view)
         else:
             chatbot_product_daily_view.product_view_count += 1
