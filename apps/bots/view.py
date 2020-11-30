@@ -159,7 +159,7 @@ def _wechat_chatroom_msg_callback():
     """微信群成员聊天记录及回复"""
     self_logic = ChatbotLogic(current_app.logger)
 
-    self_logic.wechat_chatroom_msg_callback(request.json)
+    self_logic.wechat_chatroom_msg_callback(request.json, current_app.chatroom_member_info_dict)
     return SUCCESS_RSP()
 
 
@@ -169,7 +169,7 @@ def _get_wechat_group_list():
     self_logic = ChatbotLogic(current_app.logger)
 
     # TODO: 分页
-    data = self_logic.get_wechat_group_list()
+    data = self_logic.get_wechat_group_list(current_app.chatroom_member_info_dict)
     return SUCCESS_RSP(data)
 
 

@@ -49,6 +49,10 @@ def register_logging(app):
     app.logger.addHandler(file_handler_info)
 
 
+def register_wechat_group_info(app):
+    app.chatroom_member_info_dict = {}
+
+
 def create_app(**kwargs):
     """
     :return: app
@@ -60,6 +64,7 @@ def create_app(**kwargs):
     register_converter(app)
     register_logging(app)
     register_router(app)
+    register_wechat_group_info(app)
     return app
 
 

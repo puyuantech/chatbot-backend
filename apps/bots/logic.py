@@ -462,7 +462,7 @@ class ChatbotLogic:
         # Update product view statistics
         self._update_product_stat(user_id, ts.date())
 
-    def wechat_chatroom_msg_callback(self, json_dict):
+    def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict):
         if not json_dict:
             return
         self.logger.info(json_dict)
@@ -481,17 +481,17 @@ class ChatbotLogic:
         if username == bot_username:
             return
 
-        if username not in self.zidou.chatroom_member_info.get(chatroomname, {}):
-            chatroom_member_info = self.zidou.update_member_info(chatroomname)
-            if username not in chatroom_member_info:
+        if username not in chatroom_member_info_dict.get(chatroomname, {}):
+            chatroom_member_info_dict[chatroomname] = self.zidou.get_member_info(chatroomname)
+            if username not in chatroom_member_info_dict[chatroomname]:
                 return
 
         if msg_type != 'text' or not content:
             return
 
         ts = datetime.now()
-        nick_name = self.zidou.chatroom_member_info[chatroomname][username]['nickname']
-        avatar_url = self.zidou.chatroom_member_info[chatroomname][username]['avatar_url']
+        nick_name = chatroom_member_info_dict[chatroomname][username]['nickname']
+        avatar_url = chatroom_member_info_dict[chatroomname][username]['avatar_url']
         user_id = self._get_user(ts, wechat_user_name=username, nick_name=nick_name, avatar_url=avatar_url)
         if not user_id:
             return
@@ -532,7 +532,7 @@ class ChatbotLogic:
         self._update_dialog_stat(user_id, ts.date(), chatroomname)
         self._update_user_stat(ts.date())
 
-    def get_wechat_group_list(self):
+    def get_wechat_group_list(self, chatroom_member_info_dict):
         # TODO: cache
         chatroom_list = self.zidou.get_chatroom_list()
         result = []
@@ -541,10 +541,10 @@ class ChatbotLogic:
             roomowner = chatroom.get('roomowner')
             owner_nick_name = None
             owner_avatar_url = None
-            if roomowner not in self.zidou.chatroom_member_info.get(chatroomname, {}):
-                self.zidou.update_member_info(chatroomname)
+            if roomowner not in chatroom_member_info_dict.get(chatroomname, {}):
+                chatroom_member_info_dict[chatroomname] = self.zidou.get_member_info(chatroomname)
 
-            chatroom_member_info = self.zidou.chatroom_member_info.get(chatroomname, {})
+            chatroom_member_info = chatroom_member_info_dict.get(chatroomname, {})
             owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
             owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
 

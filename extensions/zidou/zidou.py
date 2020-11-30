@@ -3,10 +3,9 @@ import time
 import random
 import hashlib
 import requests
-from utils.helper import Singleton
 
 
-class ZiDou(metaclass=Singleton):
+class ZiDou(object):
 
     def __init__(self, url, secret, phone):
         self.url = url
@@ -115,14 +114,6 @@ class ZiDou(metaclass=Singleton):
             }
 
         return member_info_dict
-
-    def update_member_info(self, chatroom_name):
-        '''
-        更新群成员信息
-        '''
-        self.chatroom_member_info[chatroom_name] = self.get_member_info(chatroom_name)
-
-        return self.chatroom_member_info[chatroom_name]
 
     def get_chatroom_list(self, page_id=1):
         '''
