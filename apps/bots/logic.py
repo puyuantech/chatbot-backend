@@ -542,10 +542,11 @@ class ChatbotLogic:
             owner_nick_name = None
             owner_avatar_url = None
             if roomowner not in self.zidou.chatroom_member_info.get(chatroomname, {}):
-                chatroom_member_info = self.zidou.update_member_info(chatroomname)
+                self.zidou.update_member_info(chatroomname)
 
-                owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
-                owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
+            chatroom_member_info = self.zidou.chatroom_member_info.get(chatroomname, {})
+            owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
+            owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
 
             result.append({
                 'nick_name': chatroom.get('nickname'),
