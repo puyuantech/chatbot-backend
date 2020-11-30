@@ -8,8 +8,8 @@ class WeChatUnionID(BaseModel):
     id = db.Column(db.Integer, primary_key=True)                    # 编号
     union_id = db.Column(db.CHAR(128))                              # 开放平台union_id
     open_id = db.Column(db.CHAR(128), default='')                   # 公众号(服务号)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = db.relationship('User', backref='union_id')
+    user_id = db.Column(db.Integer, db.ForeignKey('chatbot_user_info.id'))
+    user = db.relationship('ChatbotUserInfo', backref='union_id')
 
     @classmethod
     def get_user_id(cls, union_id):
