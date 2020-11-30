@@ -13,7 +13,7 @@ from models import (
 )
 from extensions.rsvp import Rsvp
 from extensions.zidou.zidou import ZiDou
-from .constants import Operation
+from .constants import Operation, TagType
 
 
 class ChatbotLogic:
@@ -403,7 +403,7 @@ class ChatbotLogic:
         self._update_dialog_stat(user_id, ts.date())
         self._update_user_stat(ts.date())
 
-    def update_user_tag(self, rsvp_user_id, expertise, risk_tolerance, operation):
+    def update_user_tag(self, rsvp_user_id, tag_type, tag_value, operation):
         user_id = self._get_user_from_rsvp_id(rsvp_user_id, datetime.now())
         if not user_id:
             return
@@ -416,21 +416,23 @@ class ChatbotLogic:
         if not chatbot_user:
             return
 
-        if operation == Operation.set:
-            if expertise:
-                chatbot_user.expertise = float(expertise)
-            if risk_tolerance:
-                chatbot_user.risk_tolerance = float(risk_tolerance)
-        elif operation == Operation.update:
-            if expertise:
-                chatbot_user.expertise += float(expertise)
-            if risk_tolerance:
-                chatbot_user.risk_tolerance += float(risk_tolerance)
+        if tag_type == TagType.expertise:
+            if operation == Operation.set:
+                chatbot_user.expertise = float(tag_value)
+            if operation == Operation.update: 
+                chatbot_user.expertise += float(tag_value)
 
-        chatbot_user.expertise = min(chatbot_user.expertise, 1)
-        chatbot_user.expertise = max(chatbot_user.expertise, 0)
-        chatbot_user.risk_tolerance = min(chatbot_user.risk_tolerance, 1)
-        chatbot_user.risk_tolerance = max(chatbot_user.risk_tolerance, 0)
+            chatbot_user.expertise = min(chatbot_user.expertise, 1)
+            chatbot_user.expertise = max(chatbot_user.expertise, 0)
+
+        if tag_type == TagType.risk_tolerance:
+            if operation == Operation.set:
+                chatbot_user.risk_tolerance = float(tag_value)
+            elif operation == Operation.update:
+                chatbot_user.risk_tolerance += float(tag_value)
+
+            chatbot_user.risk_tolerance = min(chatbot_user.risk_tolerance, 1)
+            chatbot_user.risk_tolerance = max(chatbot_user.risk_tolerance, 0)
 
         db.session.commit()
 
