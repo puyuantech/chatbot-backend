@@ -153,6 +153,7 @@ class ChatbotProductDailyView(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)                # 数据行编号
     user_id = db.Column(db.Integer)                             # 用户ID
+    wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID（如有）
     product_view_count = db.Column(db.Integer)                  # 用户产品访问量
     ts = db.Column(db.DATETIME)                                 # 时间戳
 
