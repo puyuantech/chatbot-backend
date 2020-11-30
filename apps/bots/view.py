@@ -92,6 +92,7 @@ def _get_product_view_count():
     self_logic = ChatbotLogic(current_app.logger)
 
     user_id = request.args.get('user_id')
+    wechat_group_id = request.args.get('wechat_group_id')
     start_time = request.args.get('start_time')
     end_time = request.args.get('end_time')
     top_n = request.args.get('top_n')
@@ -99,7 +100,7 @@ def _get_product_view_count():
         top_n = int(top_n)
         if top_n <= 0:
             raise VerifyError('top_n参数不合法！')
-    data = self_logic.get_product_view_count(user_id, start_time, end_time, top_n)
+    data = self_logic.get_product_view_count(user_id, wechat_group_id, start_time, end_time, top_n)
     return SUCCESS_RSP(data)
 
 
@@ -144,13 +145,14 @@ def _update_user_product_view():
     self_logic = ChatbotLogic(current_app.logger)
 
     rsvp_user_id = request.json.get('user_id')
+    wechat_group_id = request.json.get('group')
     product_id = request.json.get('product_id')
     product_type = request.json.get('product_type')
     product_name = request.json.get('product_name')
     ts = request.json.get('ts')
     if None in (rsvp_user_id, product_id, product_type, product_name):
         raise VerifyError('缺少用户ID或产品信息！')
-    data = self_logic.update_user_product_view(rsvp_user_id, product_id, product_type, product_name, ts)
+    data = self_logic.update_user_product_view(rsvp_user_id, wechat_group_id, product_id, product_type, product_name, ts)
     return SUCCESS_RSP(data)
 
 
