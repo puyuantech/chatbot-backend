@@ -213,7 +213,7 @@ class ChatbotLogic:
 
     def get_user_risk_tolerance(self):
         result = {}
-        risk_tolerance_levels = ['低', '较低', '中等', '较高', '高']
+        risk_tolerance_levels = ['安逸型', '保守型', '稳健型', '积极型', '进取型']
         for level in risk_tolerance_levels:
             result[level] = 0
 
