@@ -1,4 +1,5 @@
 import jwt
+import json
 import datetime
 
 
@@ -101,6 +102,12 @@ def generate_sql_pagination():
         ordering = ordering.split(',')
 
     return SQLPagination(page, page_size, ordering)
+
+
+def json_str_to_dict(data):
+    if not data:
+        return None
+    return json.loads(data)
 
 
 if __name__ == '__main__':
