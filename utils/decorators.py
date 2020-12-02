@@ -1,6 +1,6 @@
 import functools
 
-from models import UserLogin
+from models import UserLogin, ChatbotUserInfo
 from flask import g, request
 from bases.exceptions import LogicError, AuthError, AuthPermissionError
 
@@ -15,6 +15,20 @@ def login_required(func):
         user_login = UserLogin.filter_by_query(user_id=user.id).first()
         g.user = user
         g.user_login = user_login
+        g.token = token
+
+        return func(cls, *args, **kwargs)
+    return _func_wrapper
+
+
+def bot_login(func):
+    @functools.wraps(func)
+    def _func_wrapper(cls, *args, **kwargs):
+        from apps.auth.authtoken import ChatTokenAuthentication
+        user, token = ChatTokenAuthentication().authenticate(request)
+        if not user:
+            raise AuthError('请先登录')
+        g.user = user
         g.token = token
 
         return func(cls, *args, **kwargs)

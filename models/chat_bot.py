@@ -29,16 +29,16 @@ class ChatbotUserInfo(BaseModel):
             return '高'
 
     def readable_risk_tolerance(self):
-        if self.risk_tolerance < 0.15:
-            return '低'
-        elif self.risk_tolerance < 0.35:
-            return '较低'
-        elif self.risk_tolerance < 0.65:
-            return '中等'
-        elif self.risk_tolerance < 0.85:
-            return '较高'
+        if self.risk_tolerance <= 0.38:
+            return '安逸型'
+        elif self.risk_tolerance <= 0.52:
+            return '保守型'
+        elif self.risk_tolerance <= 0.68:
+            return '稳健型'
+        elif self.risk_tolerance <= 0.84:
+            return '积极型'
         else:
-            return '高'
+            return '进取型'
 
     def to_dict(self, fields_list=None, remove_fields_list=None, remove_deleted=True):
         data = super().to_dict(fields_list, remove_fields_list, remove_deleted)

@@ -1,5 +1,5 @@
 from bases.exceptions import AuthError
-from models import Token
+from models import Token, ChatBotToken
 
 
 class TokenAuthentication:
@@ -42,8 +42,9 @@ class TokenAuthentication:
 
         return self.authenticate_credentials(token)
 
-    def authenticate_credentials(self, key):
-        token = Token.filter_by_query(
+    @classmethod
+    def authenticate_credentials(cls, key):
+        token = cls.model.filter_by_query(
             key=key,
         ).one_or_none()
 
@@ -63,3 +64,9 @@ class TokenAuthentication:
 
     def authenticate_header(self, request):
         return self.keyword
+
+
+class ChatTokenAuthentication(TokenAuthentication):
+
+    model = ChatBotToken
+
