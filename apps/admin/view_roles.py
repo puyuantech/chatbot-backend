@@ -5,7 +5,7 @@ from models import Role, RolePermissionMap, UserRoleMap
 from bases.exceptions import VerifyError
 from bases.viewhandler import ApiViewHandler
 from utils.helper import generate_sql_pagination
-from utils.decorators import params_required, super_admin_login_required
+from utils.decorators import params_required, super_admin_login_required, login_required
 from .libs.permissions import update_role_permission
 
 
@@ -15,7 +15,7 @@ class RolesAPI(ApiViewHandler):
         'name': fields.String,
     }
 
-    @super_admin_login_required
+    @login_required
     def get(self):
         p = generate_sql_pagination()
         query = Role.filter_by_query()
