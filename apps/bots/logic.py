@@ -50,7 +50,7 @@ class ChatbotLogic:
             if cognai_answer_series:
                 for series in cognai_answer_series:
                     if series.get('name') and series.get('data'):
-                        output += f'{series.name}：\n'
+                        output += f'{series.get("name")}：\n'
                     for item in series.get('data', []):
                         output += f'{item[0]}: {round(item[1] * 100) / 100.0}\n'
             elif cognai_answer_data:
