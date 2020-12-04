@@ -40,6 +40,7 @@ class ChatbotLogic:
         '''
         resp = self.cognai.get_response(q)
         output = ''
+        stock_name = ''
         if resp and resp.get('code') == 0:
             answer = resp.get('answer', {})
             cognai_answer_columns = answer.get('columns', [])
@@ -57,9 +58,11 @@ class ChatbotLogic:
                     if data.get('index') and data.get('short_name'):
                         if not output:
                             output = '为您找到下列数据：\n'
+                        if not stock_name:
+                            stock_name = data.get("short_name")
                         output += f'{data.get("short_name")}({data.get("index")})\n'
 
-        return output
+        return output, stock_name
 
     def get_user_list(self, top_n, wechat_group_id):
         q = db.session.query(

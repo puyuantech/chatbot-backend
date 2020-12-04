@@ -224,8 +224,8 @@ def _get_cognai_dialog():
     self_logic = ChatbotLogic(current_app.logger)
     q = request.args.get('q')
 
-    data = self_logic.get_cognai_dialog(q)
-    if not data:
+    output, stock_name = self_logic.get_cognai_dialog(q)
+    if not output:
         rsp = {
             "stage": [
                 {
@@ -245,16 +245,57 @@ def _get_cognai_dialog():
                 {
                     "text": {
                         "plainText": [
-                            data
+                            output
                         ],
                         "text": [
-                            data
+                            output
                         ],
                         "isRich": False
+                    }
+                },
+                {
+                    "quickReplies": {
+                        "quickReplies": [
+                            {
+                                "postback": f"重仓{stock_name}的基金有哪些",
+                                "text": f"重仓{stock_name}的基金有哪些"
+                            },
+                            {
+                                "postback": "看看其他的",
+                                "text": "看看其他的"
+                            },
+                            {
+                                "postback": "我要投资",
+                                "text": "我要投资"
+                            },
+                            {
+                                "postback": "推荐基金",
+                                "text": "推荐基金"
+                            },
+                            {
+                                "postback": "搜索基金",
+                                "text": "搜索基金"
+                            },
+                            {
+                                "postback": "特色榜单",
+                                "text": "特色榜单"
+                            },
+                            {
+                                "postback": "个性化推荐",
+                                "text": "个性化推荐"
+                            },
+                            {
+                                "postback": "个人画像",
+                                "text": "个人画像"
+                            }
+                        ]
                     }
                 }
             ],
             "status": 0
         }
+        '''
+        
+        '''
 
     return jsonify(rsp), 200
