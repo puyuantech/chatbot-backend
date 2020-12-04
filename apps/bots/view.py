@@ -1,4 +1,4 @@
-from flask import request, current_app
+from flask import jsonify, request, current_app
 from utils.helper import RedPrint, SUCCESS_RSP
 from utils.decorators import view_login_required
 from bases.exceptions import VerifyError
@@ -216,3 +216,45 @@ def _get_user_dialog_count():
 
     data = self_logic.get_user_dialog_count()
     return SUCCESS_RSP(data)
+
+
+@api.route("/api/v1/chatbot/cognai/dialog", methods=["GET"])
+def _get_cognai_dialog():
+    """查询用户对话量分布统计"""
+    self_logic = ChatbotLogic(current_app.logger)
+    q = request.args.get('q')
+
+    data = self_logic.get_cognai_dialog(q)
+    if not data:
+        rsp = {
+            "stage": [
+                {
+                    "text": {
+                        "isError": True,
+                        "text": [
+                            "No match in Cognai"
+                        ]
+                    }
+                }
+            ],
+            "status": 0
+        }
+    else:
+        rsp = {
+            "stage": [
+                {
+                    "text": {
+                        "plainText": [
+                            data
+                        ],
+                        "text": [
+                            data
+                        ],
+                        "isRich": False
+                    }
+                }
+            ],
+            "status": 0
+        }
+
+    return jsonify(rsp), 200

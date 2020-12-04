@@ -1,3 +1,4 @@
+from extensions import cognai
 import json
 from datetime import datetime, timedelta
 from sqlalchemy import func, text
@@ -13,6 +14,7 @@ from models import (
 )
 from extensions.rsvp import Rsvp
 from extensions.zidou.zidou import ZiDou
+from extensions.cognai.cognai import Cognai
 from .constants import Operation, TagType
 
 
@@ -26,7 +28,38 @@ class ChatbotLogic:
 
         rsvp_conf = conf['rsvp']
         self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], logger)
+
+        cognai_conf = conf['cognai']
+        self.cognai = Cognai(cognai_conf['url'], cognai_conf['user_account'], cognai_conf['user_pwd'])
+
         self.logger = logger
+    
+    def get_cognai_dialog(self, q):
+        '''
+        获取 Cognai 回复
+        '''
+        resp = self.cognai.get_response(q)
+        output = ''
+        if resp and resp.get('code') == 0:
+            answer = resp.get('answer', {})
+            cognai_answer_columns = answer.get('columns', [])
+            cognai_answer_data = answer.get('data', [])
+            cognai_answer_series = answer.get('series', [])
+
+            if cognai_answer_series:
+                for series in cognai_answer_series:
+                    if series.get('name') and series.get('data'):
+                        output += f'{series.name}：\n'
+                    for item in series.get('data', []):
+                        output += f'{item[0]}: {round(item[1] * 100) / 100.0}\n'
+            elif cognai_answer_data:
+                for data in cognai_answer_data:
+                    if data.get('index') and data.get('short_name'):
+                        if not output:
+                            output = '为您找到下列数据：\n'
+                        output += f'{data.get("short_name")}({data.get("index")})\n'
+
+        return output
 
     def get_user_list(self, top_n, wechat_group_id):
         q = db.session.query(
