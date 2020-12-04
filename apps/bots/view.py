@@ -25,7 +25,6 @@ def _get_user_list():
 
 
 @api.route("/api/v1/chatbot/user/info", methods=["GET"])
-@view_login_required
 def _get_user_info():
     """查询用户信息"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -138,7 +137,6 @@ def _update_user_dialog():
 
 
 @api.route("/api/v1/chatbot/user/tag", methods=["POST"])
-@view_login_required
 def _update_user_tag():
     """更新用户标签"""
     self_logic = ChatbotLogic(current_app.logger)
