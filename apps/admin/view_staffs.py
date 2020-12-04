@@ -3,21 +3,21 @@ from models import User, UserLogin, UserRoleMap
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError, LogicError
 from utils.helper import generate_sql_pagination
-from utils.decorators import params_required, super_admin_login_required, login_required
+from utils.decorators import params_required, super_admin_login_required, login_required, permission_required
 from extensions.s3.head_img_store import HeadImgStore
 from .libs.staff import get_all_user_info_by_user, register_staff_user, update_user_info, update_user_roles
 
 
 class StaffsAPI(ApiViewHandler):
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     def get(self):
         p = generate_sql_pagination()
         query = User.filter_by_query(is_staff=True)
         data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
         return data
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     @params_required(*['username', 'password'])
     def post(self):
         # 创建用户
@@ -36,19 +36,19 @@ class StaffsAPI(ApiViewHandler):
 
 class StaffAPI(ApiViewHandler):
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     def get(self, _id):
         instance = User.get_by_id(_id)
         return get_all_user_info_by_user(instance)
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     def put(self, _id):
         user = User.get_by_id(_id)
         user = update_user_info(user)
         user = update_user_roles(user)
         return get_all_user_info_by_user(user)
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     def delete(self, _id):
         user = User.get_by_id(_id)
         user_login = UserLogin.filter_by_query(user_id=user.id).first()
@@ -59,7 +59,7 @@ class StaffAPI(ApiViewHandler):
 
 class ResetStaffPassword(ApiViewHandler):
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     def put(self, _id):
         password = request.json.get('password')
         password = password if password else '123456'
@@ -71,7 +71,7 @@ class ResetStaffPassword(ApiViewHandler):
 
 
 class UpLoadHeadImg(ApiViewHandler):
-    @super_admin_login_required
+    @permission_required('人员管理')
     def post(self, _id):
         """上传对应员工头像"""
         file_obj = request.files.get('file')
@@ -87,7 +87,7 @@ class UpLoadHeadImg(ApiViewHandler):
 
 class StaffRole(ApiViewHandler):
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     @params_required(*['role_id', 'user_id'])
     def post(self):
         UserRoleMap.create(
@@ -95,7 +95,7 @@ class StaffRole(ApiViewHandler):
             user_id=self.input.user_id,
         )
 
-    @super_admin_login_required
+    @permission_required('人员管理')
     @params_required(*['role_id', 'user_id'])
     def delete(self):
         obj = UserRoleMap.get_by_query(
