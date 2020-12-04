@@ -1,14 +1,15 @@
 from flask import request, current_app
 from utils.helper import RedPrint, SUCCESS_RSP
-from utils.decorators import login_required
+from utils.decorators import view_login_required
 from bases.exceptions import VerifyError
 from .logic import ChatbotLogic
+
 
 api = RedPrint('')
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/list", methods=["GET"])
+@view_login_required
 def _get_user_list():
     """查询用户列表"""
     # TODO: 分页
@@ -23,8 +24,8 @@ def _get_user_list():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/info", methods=["GET"])
+@view_login_required
 def _get_user_info():
     """查询用户信息"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -36,8 +37,8 @@ def _get_user_info():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/dialog", methods=["GET"])
+@view_login_required
 def _get_user_dialog():
     """查询用户对话记录"""
     # TODO: 分页
@@ -51,8 +52,8 @@ def _get_user_dialog():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/wechat_group/dialog", methods=["GET"])
+@view_login_required
 def _get_wechat_group_dialog():
     """查询用户对话记录"""
     # TODO: 分页
@@ -67,8 +68,8 @@ def _get_wechat_group_dialog():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/user_count", methods=["GET"])
+@view_login_required
 def _get_user_count():
     """查询用户量统计（总量+日活）"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -80,8 +81,8 @@ def _get_user_count():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/dialog_count", methods=["GET"])
+@view_login_required
 def _get_dialog_count():
     """查询对话量统计"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -93,8 +94,8 @@ def _get_dialog_count():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/product_view_count", methods=["GET"])
+@view_login_required
 def _get_product_view_count():
     """获取产品浏览量排行"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -112,8 +113,8 @@ def _get_product_view_count():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/product_daily_view", methods=["GET"])
+@view_login_required
 def _get_product_daily_view():
     """查询产品每日浏览量统计"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -125,8 +126,8 @@ def _get_product_daily_view():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/dialog", methods=["POST"])
+@view_login_required
 def _update_user_dialog():
     """记录用户对话"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -136,8 +137,8 @@ def _update_user_dialog():
     return SUCCESS_RSP()
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/tag", methods=["POST"])
+@view_login_required
 def _update_user_tag():
     """更新用户标签"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -150,8 +151,8 @@ def _update_user_tag():
     return SUCCESS_RSP()
 
 
-@login_required
 @api.route("/api/v1/chatbot/user/product_view", methods=["POST"])
+@view_login_required
 def _update_user_product_view():
     """记录用户产品浏览"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -168,8 +169,8 @@ def _update_user_product_view():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/wechat_group/chatroom_msg_callback", methods=["POST"])
+@view_login_required
 def _wechat_chatroom_msg_callback():
     """微信群成员聊天记录及回复"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -178,8 +179,8 @@ def _wechat_chatroom_msg_callback():
     return SUCCESS_RSP()
 
 
-@login_required
 @api.route("/api/v1/chatbot/wechat_group/list", methods=["GET"])
+@view_login_required
 def _get_wechat_group_list():
     """查询微信群列表"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -189,8 +190,8 @@ def _get_wechat_group_list():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/user_expertise", methods=["GET"])
+@view_login_required
 def _get_user_expertise():
     """查询用户专业度分布统计"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -199,8 +200,8 @@ def _get_user_expertise():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/user_risk_tolerance", methods=["GET"])
+@view_login_required
 def _get_user_risk_tolerance():
     """查询用户风险承受能力分布统计"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -209,8 +210,8 @@ def _get_user_risk_tolerance():
     return SUCCESS_RSP(data)
 
 
-@login_required
 @api.route("/api/v1/chatbot/statistics/user_dialog_count", methods=["GET"])
+@view_login_required
 def _get_user_dialog_count():
     """查询用户对话量分布统计"""
     self_logic = ChatbotLogic(current_app.logger)

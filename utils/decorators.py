@@ -21,6 +21,22 @@ def login_required(func):
     return _func_wrapper
 
 
+def view_login_required(func):
+    @functools.wraps(func)
+    def _func_wrapper(*args, **kwargs):
+        from apps.auth.authtoken import TokenAuthentication
+        user, token = TokenAuthentication().authenticate(request)
+        if not user:
+            raise AuthError('请先登录')
+        user_login = UserLogin.filter_by_query(user_id=user.id).first()
+        g.user = user
+        g.user_login = user_login
+        g.token = token
+
+        return func(*args, **kwargs)
+    return _func_wrapper
+
+
 def bot_login(func):
     @functools.wraps(func)
     def _func_wrapper(cls, *args, **kwargs):
