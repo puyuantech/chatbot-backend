@@ -102,7 +102,7 @@ def permission_required(permission_name):
                 for i in g.user.roles:
                     for j in i.permissions:
                         permissions[j.id] = j
-                permissions = set([permissions[i].name for i in permissions])
+                permissions = set([permissions[i].menu for i in permissions])
                 if permission_name not in permissions:
                     raise AuthPermissionError('无权限访问')
             return func(cls, *args, **kwargs)
