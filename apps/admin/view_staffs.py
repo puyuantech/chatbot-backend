@@ -10,6 +10,7 @@ from .libs.staff import get_all_user_info_by_user, register_staff_user, update_u
 
 class StaffsAPI(ApiViewHandler):
 
+    @login_required
     @permission_required('人员管理')
     def get(self):
         p = generate_sql_pagination()
@@ -17,6 +18,7 @@ class StaffsAPI(ApiViewHandler):
         data = p.paginate(query, call_back=lambda x: [get_all_user_info_by_user(i) for i in x])
         return data
 
+    @login_required
     @permission_required('人员管理')
     @params_required(*['username', 'password'])
     def post(self):
@@ -36,11 +38,13 @@ class StaffsAPI(ApiViewHandler):
 
 class StaffAPI(ApiViewHandler):
 
+    @login_required
     @permission_required('人员管理')
     def get(self, _id):
         instance = User.get_by_id(_id)
         return get_all_user_info_by_user(instance)
 
+    @login_required
     @permission_required('人员管理')
     def put(self, _id):
         user = User.get_by_id(_id)
@@ -48,6 +52,7 @@ class StaffAPI(ApiViewHandler):
         user = update_user_roles(user)
         return get_all_user_info_by_user(user)
 
+    @login_required
     @permission_required('人员管理')
     def delete(self, _id):
         user = User.get_by_id(_id)
@@ -59,6 +64,7 @@ class StaffAPI(ApiViewHandler):
 
 class ResetStaffPassword(ApiViewHandler):
 
+    @login_required
     @permission_required('人员管理')
     def put(self, _id):
         password = request.json.get('password')
@@ -71,6 +77,7 @@ class ResetStaffPassword(ApiViewHandler):
 
 
 class UpLoadHeadImg(ApiViewHandler):
+    @login_required
     @permission_required('人员管理')
     def post(self, _id):
         """上传对应员工头像"""
@@ -86,7 +93,7 @@ class UpLoadHeadImg(ApiViewHandler):
 
 
 class StaffRole(ApiViewHandler):
-
+    @login_required
     @permission_required('人员管理')
     @params_required(*['role_id', 'user_id'])
     def post(self):
@@ -95,6 +102,7 @@ class StaffRole(ApiViewHandler):
             user_id=self.input.user_id,
         )
 
+    @login_required
     @permission_required('人员管理')
     @params_required(*['role_id', 'user_id'])
     def delete(self):
