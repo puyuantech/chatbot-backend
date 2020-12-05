@@ -1,4 +1,3 @@
-from extensions import cognai
 import json
 from datetime import datetime, timedelta
 from sqlalchemy import func, text
@@ -13,8 +12,8 @@ from models import (
     ChatbotProductDailyView
 )
 from extensions.rsvp import Rsvp
-from extensions.zidou.zidou import ZiDou
-from extensions.cognai.cognai import Cognai
+from extensions.zidou import ZiDou
+from extensions.cognai import Cognai
 from .constants import Operation, TagType
 
 
