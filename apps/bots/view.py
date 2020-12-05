@@ -232,12 +232,12 @@ def _get_cognai_dialog():
                     "text": {
                         "isError": True,
                         "text": [
-                            "No match in Cognai"
+                            "No match!"
                         ]
                     }
                 }
             ],
-            "status": 0
+            "status": -1
         }
     else:
         rsp = {
