@@ -51,6 +51,8 @@ class ChatbotLogic:
                 for series in cognai_answer_series:
                     if series.get('name') and series.get('data'):
                         output += f'{series.get("name")}：\n'
+                        if not stock_name:
+                            stock_name = series.get("name").split('-')[0]
                     for item in series.get('data', []):
                         output += f'{item[0]}: {round(item[1] * 100) / 100.0}\n'
             elif cognai_answer_data:
