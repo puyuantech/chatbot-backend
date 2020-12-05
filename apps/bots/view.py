@@ -1,4 +1,4 @@
-from flask import request, current_app
+from flask import jsonify, request, current_app
 from utils.helper import RedPrint, SUCCESS_RSP
 from utils.decorators import view_login_required
 from bases.exceptions import VerifyError
@@ -216,3 +216,86 @@ def _get_user_dialog_count():
 
     data = self_logic.get_user_dialog_count()
     return SUCCESS_RSP(data)
+
+
+@api.route("/api/v1/chatbot/cognai/dialog", methods=["GET"])
+def _get_cognai_dialog():
+    """查询用户对话量分布统计"""
+    self_logic = ChatbotLogic(current_app.logger)
+    q = request.args.get('q')
+
+    output, stock_name = self_logic.get_cognai_dialog(q)
+    if not output:
+        rsp = {
+            "stage": [
+                {
+                    "text": {
+                        "isError": True,
+                        "text": [
+                            "No match in Cognai"
+                        ]
+                    }
+                }
+            ],
+            "status": 0
+        }
+    else:
+        rsp = {
+            "stage": [
+                {
+                    "text": {
+                        "plainText": [
+                            output
+                        ],
+                        "text": [
+                            output
+                        ],
+                        "isRich": False
+                    }
+                },
+                {
+                    "quickReplies": {
+                        "quickReplies": [
+                            {
+                                "postback": f"重仓{stock_name}的基金有哪些",
+                                "text": f"重仓{stock_name}的基金有哪些"
+                            },
+                            {
+                                "postback": "看看其他的",
+                                "text": "看看其他的"
+                            },
+                            {
+                                "postback": "我要投资",
+                                "text": "我要投资"
+                            },
+                            {
+                                "postback": "推荐基金",
+                                "text": "推荐基金"
+                            },
+                            {
+                                "postback": "搜索基金",
+                                "text": "搜索基金"
+                            },
+                            {
+                                "postback": "特色榜单",
+                                "text": "特色榜单"
+                            },
+                            {
+                                "postback": "个性化推荐",
+                                "text": "个性化推荐"
+                            },
+                            {
+                                "postback": "个人画像",
+                                "text": "个人画像"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "status": 0
+        }
+        '''
+        
+        '''
+
+    return jsonify(rsp), 200
