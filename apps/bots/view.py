@@ -126,7 +126,6 @@ def _get_product_daily_view():
 
 
 @api.route("/api/v1/chatbot/user/dialog", methods=["POST"])
-@view_login_required
 def _update_user_dialog():
     """记录用户对话"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -150,7 +149,6 @@ def _update_user_tag():
 
 
 @api.route("/api/v1/chatbot/user/product_view", methods=["POST"])
-@view_login_required
 def _update_user_product_view():
     """记录用户产品浏览"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -168,7 +166,6 @@ def _update_user_product_view():
 
 
 @api.route("/api/v1/chatbot/wechat_group/chatroom_msg_callback", methods=["POST"])
-@view_login_required
 def _wechat_chatroom_msg_callback():
     """微信群成员聊天记录及回复"""
     self_logic = ChatbotLogic(current_app.logger)
@@ -227,16 +224,6 @@ def _get_cognai_dialog():
     output, stock_name = self_logic.get_cognai_dialog(q)
     if not output:
         rsp = {
-            # "stage": [
-            #     {
-            #         "text": {
-            #             "isError": True,
-            #             "text": [
-            #                 "No match!"
-            #             ]
-            #         }
-            #     }
-            # ],
             "status": -1
         }
     else:
