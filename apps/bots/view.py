@@ -249,27 +249,27 @@ def _get_cognai_dialog():
                             },
                             {
                                 "postback": "我要投资",
-                                "text": "我要投资"
+                                "text": "我要投资。"
                             },
                             {
                                 "postback": "推荐基金",
-                                "text": "推荐基金"
+                                "text": "给我推荐基金。"
                             },
                             {
                                 "postback": "搜索基金",
-                                "text": "搜索基金"
+                                "text": "我想搜索基金。"
                             },
                             {
                                 "postback": "特色榜单",
-                                "text": "特色榜单"
+                                "text": "我想看看特色榜单。"
                             },
                             {
                                 "postback": "个性化推荐",
-                                "text": "个性化推荐"
+                                "text": "为我进行个性化推荐。"
                             },
                             {
-                                "postback": "个人画像",
-                                "text": "个人画像"
+                                "postback": "我的画像",
+                                "text": "查看我的画像。"
                             }
                         ]
                     }
