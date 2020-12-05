@@ -261,10 +261,6 @@ def _get_cognai_dialog():
                                 "text": f"重仓{stock_name}的基金有哪些"
                             },
                             {
-                                "postback": "看看其他的",
-                                "text": "看看其他的"
-                            },
-                            {
                                 "postback": "我要投资",
                                 "text": "我要投资"
                             },
