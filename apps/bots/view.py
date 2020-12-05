@@ -227,16 +227,16 @@ def _get_cognai_dialog():
     output, stock_name = self_logic.get_cognai_dialog(q)
     if not output:
         rsp = {
-            "stage": [
-                {
-                    "text": {
-                        "isError": True,
-                        "text": [
-                            "No match!"
-                        ]
-                    }
-                }
-            ],
+            # "stage": [
+            #     {
+            #         "text": {
+            #             "isError": True,
+            #             "text": [
+            #                 "No match!"
+            #             ]
+            #         }
+            #     }
+            # ],
             "status": -1
         }
     else:
