@@ -673,15 +673,22 @@ class ChatbotLogic:
             if 'text' in stage:
                 text = stage['text']
                 for t in text.get('plainText', []):
-                    if t == '您已经在小程序中...' and wechat_group_id:
-                        start_miniprogram = True
+                    if t == '您已经在小程序中...':
+                        if wechat_group_id:
+                            start_miniprogram = True
+                        else:
+                            t = '当前环境不支持小程序，或您已经在小程序中。'
                     else:
                         reply += t + '\n'
             if 'message' in stage:
-                if stage['message'] == '您已经在小程序中...' and wechat_group_id:
-                    start_miniprogram = True
+                t = stage['message']
+                if t == '您已经在小程序中...':
+                    if wechat_group_id:
+                        start_miniprogram = True
+                    else:
+                        t = '当前环境不支持小程序，或您已经在小程序中。'
                 else:
-                    reply += stage['message'] + '\n'
+                    reply += t + '\n'
             if 'link' in stage:
                 link = stage['link']
                 if 'text' in link:
