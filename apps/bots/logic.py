@@ -692,7 +692,7 @@ class ChatbotLogic:
             if 'link' in stage:
                 link = stage['link']
                 if 'text' in link:
-                    reply += link['text'] + '：'
+                    reply +=  f'\n{link["text"]}：\n'
                 if 'url' in link:
                     if wechat_group_id and link['url'].startswith('https://www.prism-advisor.com/'):
                         reply += link['url'] + f'&group={wechat_group_id}\n'
