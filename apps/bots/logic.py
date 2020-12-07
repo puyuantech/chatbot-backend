@@ -86,7 +86,7 @@ class ChatbotLogic:
                             "quickReplies": [
                                 {
                                     "text": f"重仓{stock_name}的基金有哪些",
-                                    "postback": f"重仓{stock_name}的基金有哪些"
+                                    "postback": f"重仓{stock_name}的基金有哪些？"
                                 },
                                 {
                                     "text": "我要投资",
@@ -681,24 +681,32 @@ class ChatbotLogic:
                 for card in cards.get('cards', []):
                     if 'title' in card:
                         reply += '\n' + card.get('title') + '\n'
-                    reply += '您可以说：\n'
+                    reply += '\n您可以说：\n'
                     for button in card.get('buttons', []):
                         if 'postback' in button:
-                            reply += button.get('postback') + '\n'
+                            postback = button.get('postback')
+                            if wechat_group_id and postback.startswith('http'):
+                                reply += f'{postback}&group={wechat_group_id}\n'
+                            else:
+                                reply += f'{postback}\n'
             if 'list' in stage:
                 list_stage = stage['list']
                 for item in list_stage.get('items', []):
                     if 'title' in item:
                         reply += '\n' + item.get('title') + '\n'
-                    reply += '您可以说：\n'
+                    reply += '\n您可以说：\n'
                     for button in item.get('buttons', []):
                         if 'postback' in button:
-                            reply += button.get('postback') + '\n'
+                            postback = button.get('postback')
+                            if wechat_group_id and postback.startswith('http'):
+                                reply += f'{postback}&group={wechat_group_id}\n'
+                            else:
+                                reply += f'{postback}\n'
             if 'quickReplies' in stage:
                 quick_replies = stage['quickReplies']
                 if 'quickReplies' in quick_replies:
                     quick_replies = quick_replies['quickReplies']
-                    reply += '您可以说：\n'
+                    reply += '\n您可以说：\n'
                     for quick_reply in quick_replies:
                         reply += f'{quick_reply["postback"]}\n'
         return similarity, reply
