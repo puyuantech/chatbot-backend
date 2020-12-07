@@ -50,6 +50,38 @@ class ZiDou(object):
         data.update({'sign': sign})
         return data
 
+    def get_miniprogram_id_and_ts(self, miniprogram_name, page_id=1):
+        '''
+        查询小程序素材
+        '''
+        func = 'material'
+        action = 'get'
+        pagesize = 50
+        params = {
+            'page': page_id,
+            'pagesize': pagesize,
+            'real_type': 7          # 7: wechat mini program
+        }
+        req_data = self.get_request_params(func, action, params)
+        resp = requests.post(self.url, json=req_data).json()
+
+        result = None
+        if not resp or resp.get('err_code', 1) != 0 or not resp.get('content') or not resp['content'].get('materials'):
+            return result
+
+        materials = resp['content']['materials']
+        if page_id >= resp.get('total_page', 0):
+            for material in materials:
+                if material.get('a_message_info', {}).get('title') == miniprogram_name:
+                    result = (material.get('material_id'), material.get('create_time'))
+            return result
+
+        another_result = self.get_meterial(miniprogram_name, page_id + 1)
+        if not result or (another_result and result[1] < another_result[1]):
+            result = another_result
+
+        return result
+
     def get_chat_log(self, chatroom_name, start_ts, end_ts, page_id=1):
         '''
         查询群聊记录
@@ -143,6 +175,26 @@ class ZiDou(object):
 
         return chatroom_list
 
+    def send_miniprogram_message(self, chatroom_name, material_id):
+        '''
+        发送小程序消息
+        '''
+        func = 'send_msg'
+        action = 'set'
+        params = {
+            'msg': [
+                {
+                    'type': 'minprogram',
+                    'material_id': material_id
+                }
+            ],
+            'chatroom_list': [chatroom_name]
+        }
+        req_data = self.get_request_params(func, action, params)
+
+        resp = requests.post(self.url, json=req_data)
+        return resp
+        
     def send_text_message(self, chatroom_name, content):
         '''
         发送文本消息
