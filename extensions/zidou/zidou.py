@@ -73,7 +73,8 @@ class ZiDou(object):
         if page_id >= resp.get('total_page', 0):
             for material in materials:
                 if material.get('a_message_info', {}).get('title') == miniprogram_name:
-                    result = (material.get('material_id'), material.get('create_time'))
+                    if not result or result[1] < material.get('create_time'):
+                        result = (material.get('material_id'), material.get('create_time'))
             return result
 
         another_result = self.get_meterial(miniprogram_name, page_id + 1)
