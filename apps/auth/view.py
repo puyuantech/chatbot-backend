@@ -95,7 +95,10 @@ class WXMiniLogin(ApiViewHandler):
             user.last_action_ts = datetime.datetime.now()
             user.save()
 
-        HeadImgStore.store_head_img_from_wechat(user_id, user_info.get('avatarUrl'))
+        status, url = HeadImgStore.store_head_img_from_wechat(user_id, user_info.get('avatarUrl'))
+        if status:
+            user.head_img = url
+            user.save()
         
         token_dict = ChatBotToken.generate_token(user_id)
 
