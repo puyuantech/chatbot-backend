@@ -694,7 +694,7 @@ class ChatbotLogic:
                 if 'text' in link:
                     reply += link['text'] + '：'
                 if 'url' in link:
-                    if wechat_group_id:
+                    if wechat_group_id and link['url'].startswith('https://www.prism-advisor.com/'):
                         reply += link['url'] + f'&group={wechat_group_id}\n'
                     else:
                         reply += link['url'] + f'\n'
@@ -708,7 +708,7 @@ class ChatbotLogic:
                     for button in card.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('http'):
+                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
                                 clicks.append(f'{postback}&group={wechat_group_id}\n')
                             else:
                                 replies.append(f'{postback}\n')
@@ -733,7 +733,7 @@ class ChatbotLogic:
                     for button in item.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('http'):
+                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
                                 clicks.append(f'{postback}&group={wechat_group_id}\n')
                             else:
                                 replies.append(f'{postback}\n')
