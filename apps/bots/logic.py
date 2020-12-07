@@ -480,7 +480,7 @@ class ChatbotLogic:
             return
 
         user_input = req.get('question')
-        similarity, bot_reply = self._parse_rsvp_response_stages(resp.get('stage', []))
+        similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []))
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
 
@@ -609,8 +609,16 @@ class ChatbotLogic:
         if resp.get('topic', 'fallback') == 'fallback':
             return
 
-        similarity, bot_reply = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
-        self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
+        similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
+        
+        if bot_reply:
+            self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
+
+        if start_miniprogram:
+            miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
+            if miniprogram_id_and_ts and not bot_reply:
+                self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
+                self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
 
@@ -660,19 +668,33 @@ class ChatbotLogic:
         # TODO: get similarity from stages
         similarity = None
         reply = ''
+        start_miniprogram = False
         for stage in stages:
             if 'text' in stage:
                 text = stage['text']
                 for t in text.get('plainText', []):
-                    reply += t + '\n'
+                    if t == '您已经在小程序中...':
+                        if wechat_group_id:
+                            start_miniprogram = True
+                        else:
+                            t = '当前环境不支持小程序，或您已经在小程序中。'
+                    else:
+                        reply += t + '\n'
             if 'message' in stage:
-                reply += stage['message'] + '\n'
+                t = stage['message']
+                if t == '您已经在小程序中...':
+                    if wechat_group_id:
+                        start_miniprogram = True
+                    else:
+                        t = '当前环境不支持小程序，或您已经在小程序中。'
+                else:
+                    reply += t + '\n'
             if 'link' in stage:
                 link = stage['link']
                 if 'text' in link:
-                    reply += link['text'] + '：'
+                    reply +=  f'\n{link["text"]}：\n'
                 if 'url' in link:
-                    if wechat_group_id:
+                    if wechat_group_id and link['url'].startswith('https://www.prism-advisor.com/'):
                         reply += link['url'] + f'&group={wechat_group_id}\n'
                     else:
                         reply += link['url'] + f'\n'
@@ -681,27 +703,52 @@ class ChatbotLogic:
                 for card in cards.get('cards', []):
                     if 'title' in card:
                         reply += '\n' + card.get('title') + '\n'
-                    reply += '\n您可以说：\n'
+                    replies = []
+                    clicks = []
                     for button in card.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('http'):
-                                reply += f'{postback}&group={wechat_group_id}\n'
+                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
+                                clicks.append(f'{postback}&group={wechat_group_id}\n')
                             else:
-                                reply += f'{postback}\n'
+                                replies.append(f'{postback}\n')
+                    if clicks:
+                        reply += '\n点击查看：\n'
+                        for c in clicks:
+                            reply += c
+                    if replies:
+                        if clicks:
+                            reply += '\n您还可以说：\n'
+                        else:
+                            reply += '\n您可以说：\n'
+                        for r in replies:
+                            reply += r
             if 'list' in stage:
                 list_stage = stage['list']
                 for item in list_stage.get('items', []):
                     if 'title' in item:
                         reply += '\n' + item.get('title') + '\n'
-                    reply += '\n您可以说：\n'
+                    replies = []
+                    clicks = []
                     for button in item.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('http'):
-                                reply += f'{postback}&group={wechat_group_id}\n'
+                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
+                                clicks.append(f'{postback}&group={wechat_group_id}\n')
                             else:
-                                reply += f'{postback}\n'
+                                replies.append(f'{postback}\n')
+                    if clicks:
+                        reply += '\n点击查看：\n'
+                        for c in clicks:
+                            reply += c
+                    if replies:
+                        if clicks:
+                            reply += '\n您还可以说：\n'
+                        else:
+                            reply += '\n您可以说：\n'
+
+                        for r in replies:
+                            reply += r
             if 'quickReplies' in stage:
                 quick_replies = stage['quickReplies']
                 if 'quickReplies' in quick_replies:
@@ -709,7 +756,8 @@ class ChatbotLogic:
                     reply += '\n您可以说：\n'
                     for quick_reply in quick_replies:
                         reply += f'{quick_reply["postback"]}\n'
-        return similarity, reply
+
+        return similarity, reply, start_miniprogram
 
     def _get_user_from_rsvp_id(self, rsvp_user_id, ts):
         if len(rsvp_user_id) <= 12:
