@@ -4,6 +4,7 @@ from bases.globals import db
 from bases.viewhandler import ApiViewHandler
 from bases.exceptions import VerifyError, LogicError
 from extensions.wx.mini import *
+from extensions.s3.head_img_store import HeadImgStore
 from models import WeChatUnionID, Token, ChatbotUserInfo, ChatBotToken
 from utils.decorators import params_required, login_required
 from apps.captchas.libs import check_img_captcha
@@ -94,6 +95,8 @@ class WXMiniLogin(ApiViewHandler):
             user.last_action_ts = datetime.datetime.now()
             user.save()
 
+        HeadImgStore.store_head_img_from_wechat(user_id, user_info.get('avatarUrl'))
+        
         token_dict = ChatBotToken.generate_token(user_id)
 
         data = dict()
