@@ -615,10 +615,10 @@ class ChatbotLogic:
             self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
         if start_miniprogram:
-            resp = self.zidou.get_miniprogram_id_and_ts('棱小镜')
-            if resp and not bot_reply:
+            miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
+            if miniprogram_id_and_ts and not bot_reply:
                 self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
-                resp = self.zidou.send_miniprogram_message(chatroomname, resp[0])
+                self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
 
