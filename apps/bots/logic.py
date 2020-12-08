@@ -158,6 +158,9 @@ class ChatbotLogic:
             })
             result.append(user_dict)
 
+        if top_n:
+            result.sort(key=lambda item: item['dialog_count'], reverse=True)
+
         return result
 
     def get_user_info(self, user_id=None, rsvp_user_id=None):
