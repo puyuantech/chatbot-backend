@@ -137,3 +137,4 @@ config_local.json
 local_config.py
 local.py
 .vscode/*
+.DS_Store

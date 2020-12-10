@@ -14,6 +14,7 @@ from models import (
 from extensions.rsvp import Rsvp
 from extensions.zidou import ZiDou
 from extensions.cognai import Cognai
+from extensions.wxwork import WxWorkNotification
 from .constants import Operation, TagType
 
 
@@ -605,20 +606,24 @@ class ChatbotLogic:
 
         if not resp:
             return
-        self.logger.info(f'resp: {type(resp)} {resp}')
-        if resp.get('topic', 'fallback') == 'fallback':
-            return
+        self.logger.info(f'resp: {resp}')
+        if resp.get('topic', 'fallback') != 'fallback':
+            similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
+            
+            if bot_reply:
+                self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
-        similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
-        
-        if bot_reply:
-            self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
-
-        if start_miniprogram:
-            miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
-            if miniprogram_id_and_ts and not bot_reply:
-                self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
-                self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
+            if start_miniprogram:
+                miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
+                if miniprogram_id_and_ts and not bot_reply:
+                    self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
+                    self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
+        else:
+            bot_reply = ''
+            similarity = 0
+            reporter = WxWorkNotification(self.logger)
+            bad_case = f'Bad case:\n{nick_name}: {content}'
+            reporter.send(bad_case)
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
 
