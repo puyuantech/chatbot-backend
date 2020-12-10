@@ -48,24 +48,29 @@ class Rsvp(object):
         sign = self.get_sign(data) 
         data.update({'sign': sign})
 
-        if self.logger:
-            self.logger.info(f'data: {data}')
-        else:
-            print(f'data: {data}')
+        # if self.logger:
+        #     self.logger.info(f'data: {data}')
+        # else:
+        #     print(f'data: {data}')
 
         return data
 
     def get_bot_response(self, query, uid):
         params = self.get_request_params(query, uid)
         resp = requests.get(self.url, headers=self.req_headers, params=params)
-        if self.logger:
-            self.logger.info(f'url: {resp.request.url}')
-            self.logger.info(f'headers: {resp.request.headers}')
-        else:
-            print(f'url: {resp.request.url}')
-            print(f'headers: {resp.request.headers}')
+        # if self.logger:
+        #     self.logger.info(f'url: {resp.request.url}')
+        #     self.logger.info(f'headers: {resp.request.headers}')
+        # else:
+        #     print(f'url: {resp.request.url}')
+        #     print(f'headers: {resp.request.headers}')
         resp = resp.json()
         if not resp or resp.get('status', 1) != 0 or not resp.get('stage'):
+            import traceback
+            if self.logger:
+                self.logger.error(traceback.format_exc())
+            else:
+                print(traceback.format_exc())
             return None
         
         return resp
