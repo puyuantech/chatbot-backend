@@ -14,6 +14,7 @@ from models import (
 from extensions.rsvp import Rsvp
 from extensions.zidou import ZiDou
 from extensions.cognai import Cognai
+from extensions.wxwork import WxWorkNotification
 from .constants import Operation, TagType
 
 
@@ -151,7 +152,8 @@ class ChatbotLogic:
             q = q.filter(ChatbotUserInfo.id.in_(user_dialog_count.keys()))
         all_user_info = q.all()
         for user in all_user_info:
-            user_dict = user.to_dict(remove_fields_list=['update_time', 'wechat_user_name'])
+            user_dict = user.to_dict(remove_fields_list=['update_time'])
+            user_dict['source'] = '微信群' if user_dict.pop('wechat_user_name') else '小程序'
             user_dict['user_id'] = user_dict.pop('id')
             user_dict.update({
                 "dialog_count": int(user_dialog_count.get(user.id, 0))
@@ -180,7 +182,8 @@ class ChatbotLogic:
             ChatbotDialogStat.user_id == user_id
         ).one_or_none()
 
-        user_dict = user.to_dict(remove_fields_list=['update_time', 'wechat_user_name'])
+        user_dict = user.to_dict(remove_fields_list=['update_time'])
+        user_dict['source'] = '微信群' if user_dict.pop('wechat_user_name') else '小程序'
         user_dict['user_id'] = user_dict.pop('id')
         user_dict.update({
             "dialog_count": int(user_dialog_count[0]) if user_dialog_count[0] else 0
@@ -608,20 +611,24 @@ class ChatbotLogic:
 
         if not resp:
             return
-        self.logger.info(f'resp: {type(resp)} {resp}')
-        if resp.get('topic', 'fallback') == 'fallback':
-            return
+        self.logger.info(f'resp: {resp}')
+        if resp.get('topic', 'fallback') != 'fallback':
+            similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
+            
+            if bot_reply:
+                self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
-        similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
-        
-        if bot_reply:
-            self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
-
-        if start_miniprogram:
-            miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
-            if miniprogram_id_and_ts and not bot_reply:
-                self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
-                self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
+            if start_miniprogram:
+                miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
+                if miniprogram_id_and_ts and not bot_reply:
+                    self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
+                    self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
+        else:
+            bot_reply = ''
+            similarity = 0
+            reporter = WxWorkNotification(self.logger)
+            bad_case = f'Bad case:\n{nick_name}: {content}'
+            reporter.send(bad_case)
 
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
 

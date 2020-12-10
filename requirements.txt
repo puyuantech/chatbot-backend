@@ -10,5 +10,5 @@ gunicorn
 requests
 gevent
 pycryptodome >= 3.9.8
-boto3
+boto3==1.16.32
 pyjwt
