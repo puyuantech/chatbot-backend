@@ -565,6 +565,43 @@ class ChatbotLogic:
         # Update product view statistics
         self._update_product_stat(user_id, wechat_group_id, ts.date())
 
+    def get_bot_info(self):
+        resp = self.rsvp.get_bot_info()
+        return resp
+
+    def chat(self, json_dict):
+        if not json_dict:
+            return None
+        query = json_dict.get('query')
+        user_id = json_dict.get('user_id')
+        if not query or not user_id:
+            return None
+        user_id = str(user_id)
+
+        ts = datetime.now()
+        uid = f'openidprism_{user_id}'
+        resp = self.rsvp.get_bot_response(query, uid)
+        if not resp:
+            return None
+        similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []))
+        bot_raw_reply = json.dumps(resp, ensure_ascii=False)
+
+        chatbot_dialog = ChatbotDialog(
+            user_id=user_id,
+            user_input=query,
+            bot_reply=bot_reply,
+            bot_raw_reply=bot_raw_reply,
+            similarity=similarity,
+            ts=ts
+        )
+        db.session.add(chatbot_dialog)
+        db.session.commit()
+
+        self._update_dialog_stat(user_id, ts.date())
+        self._update_user_stat(ts.date())
+
+        return resp
+
     def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict):
         if not json_dict:
             return

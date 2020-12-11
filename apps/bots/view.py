@@ -165,6 +165,28 @@ def _update_user_product_view():
     return SUCCESS_RSP(data)
 
 
+@api.route("/api/v1/chatbot/bot_info", methods=["GET"])
+def _bot_info():
+    """微信群成员聊天记录及回复"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    resp = self_logic.get_bot_info()
+    if not resp:
+        return ERROR_RSP()
+    return SUCCESS_RSP(resp)
+
+
+@api.route("/api/v1/chatbot/chat", methods=["POST"])
+def _chat():
+    """微信群成员聊天记录及回复"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    resp = self_logic.chat(request.json)
+    if not resp:
+        return ERROR_RSP()
+    return SUCCESS_RSP(resp)
+
+
 @api.route("/api/v1/chatbot/wechat_group/chatroom_msg_callback", methods=["POST"])
 def _wechat_chatroom_msg_callback():
     """微信群成员聊天记录及回复"""

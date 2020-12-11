@@ -4,11 +4,14 @@ import random
 import hashlib
 import requests
 
+from urllib import parse
+
 
 class Rsvp(object):
 
     def __init__(self, url, bot_id, share_token, logger=None):
-        self.url = url
+        self.chat_url = parse.urljoin(url, 'sandbox/chat')
+        self.bot_info_url = parse.urljoin(url, 'server/api/botinfo')
         self.bot_id = bot_id
         self.req_headers = {
             'Content-Type': 'application/json',
@@ -57,7 +60,7 @@ class Rsvp(object):
 
     def get_bot_response(self, query, uid):
         params = self.get_request_params(query, uid)
-        resp = requests.get(self.url, headers=self.req_headers, params=params)
+        resp = requests.get(self.chat_url, headers=self.req_headers, params=params)
         # if self.logger:
         #     self.logger.info(f'url: {resp.request.url}')
         #     self.logger.info(f'headers: {resp.request.headers}')
@@ -74,3 +77,14 @@ class Rsvp(object):
             return None
         
         return resp
+        return resp.json()
+
+    def get_bot_info(self):
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        params = {
+            'botId': self.bot_id
+        }
+        resp = requests.get(self.bot_info_url, headers=headers, params=params)
+        return resp.json()
