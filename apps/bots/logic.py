@@ -16,6 +16,7 @@ from extensions.zidou import ZiDou
 from extensions.cognai import Cognai
 from extensions.wxwork import WxWorkNotification
 from .constants import Operation, TagType
+from .libs.tags import get_tags_by_dialog_id
 
 
 class ChatbotLogic:
@@ -33,7 +34,7 @@ class ChatbotLogic:
         self.cognai = Cognai(cognai_conf['url'], cognai_conf['user_account'], cognai_conf['user_pwd'])
 
         self.logger = logger
-    
+
     def get_cognai_dialog(self, q):
         '''
         获取 Cognai 回复
@@ -206,7 +207,10 @@ class ChatbotLogic:
         dialogs = q.all()
         result = []
         for dialog in dialogs:
-            result.append(dialog.to_dict(remove_fields_list=['create_time', 'update_time', 'id']))
+            result.append({
+                'tags': get_tags_by_dialog_id(dialog.id),
+                **dialog.to_dict(remove_fields_list=['create_time', 'update_time']),
+            })
         return result
 
     def get_wechat_group_dialog(self, wechat_group_id, start=None, end=None):
@@ -520,7 +524,7 @@ class ChatbotLogic:
         if tag_type == TagType.expertise:
             if operation == Operation.set:
                 chatbot_user.expertise = float(tag_value)
-            if operation == Operation.update: 
+            if operation == Operation.update:
                 chatbot_user.expertise += float(tag_value)
 
             chatbot_user.expertise = min(chatbot_user.expertise, 1)
@@ -651,7 +655,7 @@ class ChatbotLogic:
         self.logger.info(f'resp: {resp}')
         if resp.get('topic', 'fallback') != 'fallback':
             similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
-            
+
             if bot_reply:
                 self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
@@ -928,7 +932,7 @@ class ChatbotLogic:
         )
         if wechat_group_id:
             query = query.filter(ChatbotProductDailyView.wechat_group_id == wechat_group_id)
-        
+
         chatbot_product_daily_view = query.one_or_none()
         if not chatbot_product_daily_view:
             chatbot_product_daily_view = ChatbotProductDailyView(

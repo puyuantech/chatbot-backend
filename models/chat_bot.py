@@ -168,3 +168,22 @@ class ChatbotProductDailyView(BaseModel):
 #     view_count = db.Column(db.Integer, default=0)             # 产品访问次数
 #     ts = db.Column(DATETIME)                                  # 产品访问时间戳
 
+
+class ChatbotTag(BaseModel):
+    '''对话机器人标签列表'''
+    __tablename__ = 'chatbot_tags'
+
+    tag_name = db.Column(db.String(16), primary_key=True)  # 标签名称
+    user_id = db.Column(db.Integer)                        # 用户ID
+
+
+class ChatbotDialogTag(BaseModel):
+    '''对话机器人对话标签'''
+    __tablename__ = 'chatbot_dialog_tags'
+
+    id = db.Column(db.Integer, primary_key=True)  # 数据行编号
+    tag_name = db.Column(db.String(16))           # 标签名称
+    dialog_id = db.Column(db.Integer)             # 对话ID
+    add_user_id = db.Column(db.Integer)           # 添加者ID
+    del_user_id = db.Column(db.Integer)           # 删除者ID
+

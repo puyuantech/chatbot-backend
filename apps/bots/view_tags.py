@@ -1,0 +1,64 @@
+from flask import g
+from bases.exceptions import LogicError
+from bases.viewhandler import ApiViewHandler
+from models.chat_bot import ChatbotDialogTag, ChatbotTag
+from utils.decorators import login_required, params_required, super_admin_login_required
+from utils.helper import generate_sql_pagination
+
+from .libs.tags import get_top_tags
+
+
+class TagsAPI(ApiViewHandler):
+
+    @super_admin_login_required
+    def get(self):
+        p = generate_sql_pagination()
+        query = ChatbotTag.filter_by_query()
+        data = p.paginate_v2(query)
+        return data
+
+
+class TopTagsAPI(ApiViewHandler):
+
+    @login_required
+    def get(self):
+        return get_top_tags()
+
+
+class TagAPI(ApiViewHandler):
+
+    @login_required
+    @params_required(*['dialog_id', 'tag_name'])
+    def post(self):
+        """添加对话标签"""
+        if ChatbotDialogTag.filter_by_query(
+            tag_name=self.input.tag_name,
+            dialog_id=self.input.dialog_id,
+        ).one_or_none():
+            raise LogicError('标签已存在！')
+
+        if not ChatbotTag.filter_by_query(tag_name=self.input.tag_name).one_or_none():
+            ChatbotTag.create(
+                tag_name=self.input.tag_name,
+                user_id=g.user.id,
+            )
+
+        dialog_tag = ChatbotDialogTag.create(
+            tag_name=self.input.tag_name,
+            dialog_id=self.input.dialog_id,
+            add_user_id=g.user.id,
+        )
+
+        return {'tag_id': dialog_tag.id}
+
+    @login_required
+    @params_required(*['tag_id'])
+    def delete(self):
+        """删除对话标签"""
+        dialog_tag = ChatbotDialogTag.get_by_id(self.input.tag_id)
+        dialog_tag.update(
+            is_deleted=True,
+            del_user_id=g.user.id,
+        )
+        return 'success'
+

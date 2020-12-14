@@ -1,13 +1,19 @@
 import traceback
 from flask import Blueprint, current_app
+from flask_restful import Api
 from bases.exceptions import BaseError
 from utils.helper import ERROR_RSP
-from .view import api
+from .view import api as view_api
 from .view_prism import api as prism_api
-
+from .view_tags import TagsAPI, TopTagsAPI, TagAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__)
-api.register(blu)
+api = Api(blu)
+api.add_resource(TagsAPI, '/api/v1/admin/tags')
+api.add_resource(TopTagsAPI, '/api/v1/admin/tags/top')
+api.add_resource(TagAPI, '/api/v1/admin/tag')
+
+view_api.register(blu)
 prism_api.register(blu)
 
 

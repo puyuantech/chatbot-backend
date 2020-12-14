@@ -32,6 +32,17 @@ class SQLPagination(BasePagination):
             'results': results,
         }
 
+    def paginate_v2(self, query, call_back=lambda obj: obj.to_dict()):
+        if self.ordering:
+            query = query.order_by(*[text(i) for i in self.ordering])
+        instances = query.limit(self.page_size).offset((self.page - 1) * self.page_size).all()
+        return {
+            'page': self.page,
+            'page_size': self.page_size,
+            'count': query.count(),
+            'results': list(map(call_back, instances)),
+        }
+
     def convert_ordering(self):
         for i in range(len(self.ordering)):
             if self.ordering[i].startswith('-'):
