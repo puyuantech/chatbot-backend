@@ -1,5 +1,5 @@
 from flask import jsonify, request, current_app
-from utils.helper import RedPrint, SUCCESS_RSP
+from utils.helper import RedPrint, ERROR_RSP, SUCCESS_RSP
 from utils.decorators import view_login_required
 from bases.exceptions import VerifyError
 from .logic import ChatbotLogic
@@ -244,5 +244,5 @@ def _get_cognai_dialog():
     q = request.args.get('q')
 
     rsp = self_logic.get_cognai_dialog(q)
-    
+
     return jsonify(rsp), 200
