@@ -45,6 +45,11 @@ THIRD_SETTING = {
         "bot_id": -1,
         "share_token": ""
     },
+    "rsvp_group": {
+        "url": "",
+        "bot_id": -1,
+        "share_token": ""
+    },
     "cognai": {
         "url": "",
         "user_account": "",

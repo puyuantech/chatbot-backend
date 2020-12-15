@@ -30,6 +30,9 @@ class ChatbotLogic:
         rsvp_conf = conf['rsvp']
         self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], logger)
 
+        rsvp_group_conf = conf['rsvp_group']
+        self.rsvp_group = Rsvp(rsvp_group_conf['url'], rsvp_group_conf['bot_id'], rsvp_group_conf['share_token'], logger)
+
         cognai_conf = conf['cognai']
         self.cognai = Cognai(cognai_conf['url'], cognai_conf['user_account'], cognai_conf['user_pwd'])
 
@@ -644,7 +647,7 @@ class ChatbotLogic:
 
         uid = f'openidgroup_{username}'
         try:
-            resp = self.rsvp.get_bot_response(content, uid)
+            resp = self.rsvp_group.get_bot_response(content, uid)
         except Exception as e:
             import traceback
             self.logger.error(traceback.format_exc())
