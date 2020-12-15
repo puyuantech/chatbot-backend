@@ -167,7 +167,7 @@ def _update_user_product_view():
 
 @api.route("/api/v1/chatbot/bot_info", methods=["GET"])
 def _bot_info():
-    """微信群成员聊天记录及回复"""
+    """获取聊天机器人信息（用于小程序前端展示）"""
     self_logic = ChatbotLogic(current_app.logger)
 
     resp = self_logic.get_bot_info()
