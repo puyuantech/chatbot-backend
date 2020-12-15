@@ -68,7 +68,7 @@ class ChangeAPI(ApiViewHandler):
             'avatar_url',
             'site',
         ]}
-        user_info = User.filter_by_query(user_id=g.user.id).first()
+        user_info = User.get_by_id(g.user.id)
         for i in columns:
             if columns[i]:
                 user_info.update(commit=False, **{i: columns[i]})
