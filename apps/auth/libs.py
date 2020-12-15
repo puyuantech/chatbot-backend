@@ -10,11 +10,11 @@ def get_user_by_username(username):
 def check_login(username, password):
     user_login = get_user_by_username(username)
     if not user_login:
-        raise AuthError("用户名不存在")
+        raise VerifyError("用户名不存在")
     if not user_login.check_password(password):
-        raise AuthError("密码错误")
+        raise VerifyError("密码错误")
     if user_login.is_deleted:
-        raise AuthError("账户已经停用")
+        raise VerifyError("账户已经停用")
     return user_login
 
 
