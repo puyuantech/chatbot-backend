@@ -2,14 +2,15 @@ from flask import g
 from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from models.chat_bot import ChatbotDialogTag, ChatbotTag
-from utils.decorators import login_required, params_required, super_admin_login_required
+from utils.decorators import login_required, params_required, permission_required
 
 from .libs.tags import get_tags_info, get_top_tags
 
 
 class TagsAPI(ApiViewHandler):
 
-    @super_admin_login_required
+    @login_required
+    @permission_required('标签中心')
     def get(self):
         tags = ChatbotTag.filter_by_query().all()
         return get_tags_info(tags)
