@@ -242,9 +242,10 @@ class ChatbotLogic:
         dialogs = q.all()
         result = []
         for dialog in dialogs:
-            dialog_dict = dialog.to_dict(remove_fields_list=['create_time', 'update_time', 'id'])
+            dialog_dict = dialog.to_dict(remove_fields_list=['create_time', 'update_time'])
             dialog_dict['nickname'] = user_info_dict.get(dialog_dict['user_id'], {}).get('nick_name')
             dialog_dict['head_img'] = user_info_dict.get(dialog_dict['user_id'], {}).get('head_img')
+            dialog_dict['tags'] = get_tags_by_dialog_id(dialog.id)
 
             result.append(dialog_dict)
         return result
