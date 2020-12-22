@@ -69,15 +69,13 @@ class Rsvp(object):
         #     print(f'headers: {resp.request.headers}')
         resp = resp.json()
         if not resp or resp.get('status', 1) != 0 or not resp.get('stage'):
-            import traceback
             if self.logger:
-                self.logger.error(traceback.format_exc())
+                self.logger.error(f'Fail to parse bot resp: {resp}')
             else:
-                print(traceback.format_exc())
+                print(f'Fail to parse bot resp: {resp}')
             return None
         
         return resp
-        return resp.json()
 
     def get_bot_info(self):
         headers = {
