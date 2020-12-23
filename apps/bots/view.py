@@ -178,7 +178,7 @@ def _bot_info():
 
 @api.route("/api/v1/chatbot/chat", methods=["POST"])
 def _chat():
-    """微信群成员聊天记录及回复"""
+    """聊天"""
     self_logic = ChatbotLogic(current_app.logger)
 
     resp = self_logic.chat(request.json)
