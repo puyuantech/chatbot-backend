@@ -187,3 +187,12 @@ class ChatbotDialogTag(BaseModel):
     add_user_id = db.Column(db.Integer)           # 添加者ID
     del_user_id = db.Column(db.Integer)           # 删除者ID
 
+
+class WechatGroupBotConfig(BaseModel):
+    '''微信群对话机器人配置'''
+    __tablename__ = 'wechat_group_bot_config'
+
+    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
+    wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID
+    bot_id = db.Column(db.Integer)                              # Bot ID
+    share_token = db.Column(db.Text)                            # Bot share token
