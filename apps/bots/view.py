@@ -94,7 +94,7 @@ def _set_wechat_group_bot_config():
     if not wechat_group_id or not bot_id or not share_token:
         raise VerifyError('缺少必要参数！')
 
-    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token)
+    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token, stage)
     return SUCCESS_RSP()
 
 
