@@ -247,34 +247,43 @@ class ChatbotLogic:
             wechat_group_id=wechat_group_id,
         ).one_or_none()
 
-        result = {}
+        result = {
+            'wechat_group_id': wechat_group_id
+        }
         if not bot_config:
             rsvp_group_conf = self.conf['rsvp_group']
             result['bot_id'] = rsvp_group_conf['bot_id']
             result['share_token'] = rsvp_group_conf['share_token']
+            result['stage'] = 'release'
         else:
             result['bot_id'] = bot_config.bot_id
             result['share_token'] = bot_config.share_token
+            result['stage'] = bot_config.stage
 
         return result
 
-    def set_wechat_group_bot_config(self, wechat_group_id, bot_id, share_token):
+    def set_wechat_group_bot_config(self, wechat_group_id, bot_id, share_token, stage):
         bot_config = db.session.query(
             WechatGroupBotConfig
         ).filter_by(
             wechat_group_id=wechat_group_id,
         ).one_or_none()
 
+        if not stage:
+            stage = 'release'
+
         if not bot_config:
             bot_config = WechatGroupBotConfig(
                 wechat_group_id = wechat_group_id,
                 bot_id = bot_id,
-                share_token = share_token
+                share_token = share_token,
+                stage = stage
             )
             db.session.add(bot_config)
         else:
             bot_config.bot_id = bot_id
             bot_config.share_token = share_token
+            bot_config.stage = stage
 
         db.session.commit()
 
@@ -695,7 +704,7 @@ class ChatbotLogic:
 
         uid = f'openidgroup_{username}'
         try:
-            resp = rsvp_group.get_bot_response(content, uid)
+            resp = rsvp_group.get_bot_response(content, uid, wechat_group_bot_config['stage'])
         except Exception as e:
             import traceback
             self.logger.error(traceback.format_exc())

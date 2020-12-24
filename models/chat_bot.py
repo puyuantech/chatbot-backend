@@ -196,3 +196,4 @@ class WechatGroupBotConfig(BaseModel):
     wechat_group_id = db.Column(db.CHAR(32))                    # 微信群ID
     bot_id = db.Column(db.Integer)                              # Bot ID
     share_token = db.Column(db.Text)                            # Bot share token
+    stage = db.Column(db.Text)                                  # Bot stage (release/test)
