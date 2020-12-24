@@ -70,7 +70,7 @@ def _get_wechat_group_dialog():
 @api.route("/api/v1/chatbot/wechat_group/bot_config", methods=["GET"])
 @view_login_required
 def _get_wechat_group_bot_config():
-    """查询微信群对话机器人"""
+    """查询微信群对话机器人配置"""
     self_logic = ChatbotLogic(current_app.logger)
 
     wechat_group_id = request.args.get('wechat_group_id')
@@ -84,12 +84,13 @@ def _get_wechat_group_bot_config():
 @api.route("/api/v1/chatbot/wechat_group/bot_config", methods=["POST"])
 @view_login_required
 def _set_wechat_group_bot_config():
-    """设置微信群对话机器人"""
+    """设置微信群对话机器人配置"""
     self_logic = ChatbotLogic(current_app.logger)
 
     wechat_group_id = request.json.get('wechat_group_id')
     bot_id = request.json.get('bot_id')
     share_token = request.json.get('share_token')
+    stage = request.json.get('stage')
     if not wechat_group_id or not bot_id or not share_token:
         raise VerifyError('缺少必要参数！')
 

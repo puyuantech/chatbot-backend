@@ -39,12 +39,12 @@ class Rsvp(object):
         m.update(json_str.encode()) 
         return m.hexdigest()
 
-    def get_request_params(self, query, uid):
+    def get_request_params(self, query, uid, stage):
         data = {
             'botid': self.bot_id,
             'uid': uid,
             'q': query,
-            'stage': 'release',
+            'stage': stage,
             'nonce': self.get_nonce(),
             'timestamp': int(time.time())
         }
@@ -58,8 +58,8 @@ class Rsvp(object):
 
         return data
 
-    def get_bot_response(self, query, uid):
-        params = self.get_request_params(query, uid)
+    def get_bot_response(self, query, uid, stage='release'):
+        params = self.get_request_params(query, uid, stage)
         resp = requests.get(self.chat_url, headers=self.req_headers, params=params)
         # if self.logger:
         #     self.logger.info(f'url: {resp.request.url}')
