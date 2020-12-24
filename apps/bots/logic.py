@@ -247,7 +247,9 @@ class ChatbotLogic:
             wechat_group_id=wechat_group_id,
         ).one_or_none()
 
-        result = {}
+        result = {
+            'wechat_group_id': wechat_group_id
+        }
         if not bot_config:
             rsvp_group_conf = self.conf['rsvp_group']
             result['bot_id'] = rsvp_group_conf['bot_id']
