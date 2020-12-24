@@ -67,6 +67,36 @@ def _get_wechat_group_dialog():
     return SUCCESS_RSP(data)
 
 
+@api.route("/api/v1/chatbot/wechat_group/bot_config", methods=["GET"])
+@view_login_required
+def _get_wechat_group_bot_config():
+    """查询微信群对话机器人"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    wechat_group_id = request.args.get('wechat_group_id')
+    if not wechat_group_id:
+        raise VerifyError('缺少微信群ID！')
+
+    data = self_logic.get_wechat_group_bot_config(wechat_group_id)
+    return SUCCESS_RSP(data)
+
+
+@api.route("/api/v1/chatbot/wechat_group/bot_config", methods=["POST"])
+@view_login_required
+def _set_wechat_group_bot_config():
+    """设置微信群对话机器人"""
+    self_logic = ChatbotLogic(current_app.logger)
+
+    wechat_group_id = request.json.get('wechat_group_id')
+    bot_id = request.json.get('bot_id')
+    share_token = request.json.get('share_token')
+    if not wechat_group_id or not bot_id or not share_token:
+        raise VerifyError('缺少必要参数！')
+
+    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token)
+    return SUCCESS_RSP()
+
+
 @api.route("/api/v1/chatbot/statistics/user_count", methods=["GET"])
 @view_login_required
 def _get_user_count():

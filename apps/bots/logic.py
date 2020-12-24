@@ -9,7 +9,8 @@ from models import (
     ChatbotProductView,
     ChatbotUserInfo,
     ChatbotUserStat,
-    ChatbotProductDailyView
+    ChatbotProductDailyView,
+    WechatGroupBotConfig
 )
 from extensions.rsvp import Rsvp
 from extensions.zidou import ZiDou
@@ -22,27 +23,16 @@ from .libs.tags import get_tags_by_dialog_id
 class ChatbotLogic:
 
     def __init__(self, logger):
-        conf = settings['THIRD_SETTING']
-        zidou_conf = conf['zidou']
-        self.zidou_bot_id = zidou_conf['bot_id']
-        self.zidou = ZiDou(zidou_conf['url'], zidou_conf['secret'], zidou_conf['phone'])
-
-        rsvp_conf = conf['rsvp']
-        self.rsvp = Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], logger)
-
-        rsvp_group_conf = conf['rsvp_group']
-        self.rsvp_group = Rsvp(rsvp_group_conf['url'], rsvp_group_conf['bot_id'], rsvp_group_conf['share_token'], logger)
-
-        cognai_conf = conf['cognai']
-        self.cognai = Cognai(cognai_conf['url'], cognai_conf['user_account'], cognai_conf['user_pwd'])
-
+        self.conf = settings['THIRD_SETTING']
         self.logger = logger
 
     def get_cognai_dialog(self, q):
         '''
         获取 Cognai 回复
         '''
-        resp = self.cognai.get_response(q)
+        cognai_conf = self.conf['cognai']
+        cognai = Cognai(cognai_conf['url'], cognai_conf['user_account'], cognai_conf['user_pwd'])
+        resp = cognai.get_response(q)
         output = ''
         stock_name = ''
         if resp and resp.get('code') == 0:
@@ -249,6 +239,44 @@ class ChatbotLogic:
 
             result.append(dialog_dict)
         return result
+
+    def get_wechat_group_bot_config(self, wechat_group_id):
+        bot_config = db.session.query(
+            WechatGroupBotConfig
+        ).filter_by(
+            wechat_group_id=wechat_group_id,
+        ).one_or_none()
+
+        result = {}
+        if not bot_config:
+            rsvp_group_conf = self.conf['rsvp_group']
+            result['bot_id'] = rsvp_group_conf['bot_id']
+            result['share_token'] = rsvp_group_conf['share_token']
+        else:
+            result['bot_id'] = bot_config.bot_id
+            result['share_token'] = bot_config.share_token
+
+        return result
+
+    def set_wechat_group_bot_config(self, wechat_group_id, bot_id, share_token):
+        bot_config = db.session.query(
+            WechatGroupBotConfig
+        ).filter_by(
+            wechat_group_id=wechat_group_id,
+        ).one_or_none()
+
+        if not bot_config:
+            bot_config = WechatGroupBotConfig(
+                wechat_group_id = wechat_group_id,
+                bot_id = bot_id,
+                share_token = share_token
+            )
+            db.session.add(bot_config)
+        else:
+            bot_config.bot_id = bot_id
+            bot_config.share_token = share_token
+
+        db.session.commit()
 
     def get_user_count(self, start=None, end=None, wechat_group_id=None):
         q = db.session.query(
@@ -573,8 +601,13 @@ class ChatbotLogic:
         # Update product view statistics
         self._update_product_stat(user_id, wechat_group_id, ts.date())
 
+    def get_rsvp_bot(self):
+        rsvp_conf = self.conf['rsvp']
+        return Rsvp(rsvp_conf['url'], rsvp_conf['bot_id'], rsvp_conf['share_token'], self.logger)
+
     def get_bot_info(self):
-        resp = self.rsvp.get_bot_info()
+        rsvp_bot = self.get_rsvp_bot()
+        resp = rsvp_bot.get_bot_info()
         return resp
 
     def chat(self, json_dict):
@@ -588,7 +621,8 @@ class ChatbotLogic:
 
         ts = datetime.now()
         uid = f'openidprism_{user_id}'
-        resp = self.rsvp.get_bot_response(query, uid)
+        rsvp_bot = self.get_rsvp_bot()
+        resp = rsvp_bot.get_bot_response(query, uid)
         if not resp:
             return None
         similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []))
@@ -610,6 +644,10 @@ class ChatbotLogic:
 
         return resp
 
+    def get_zidou_bot(self):
+        zidou_conf = self.conf['zidou']
+        return ZiDou(zidou_conf['url'], zidou_conf['secret'], zidou_conf['phone'])
+
     def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict):
         if not json_dict:
             return
@@ -629,13 +667,22 @@ class ChatbotLogic:
         if username == bot_username:
             return
 
+        zidou_bot = self.get_zidou_bot()
         if username not in chatroom_member_info_dict.get(chatroomname, {}):
-            chatroom_member_info_dict[chatroomname] = self.zidou.get_member_info(chatroomname)
+            chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
             if username not in chatroom_member_info_dict[chatroomname]:
                 return
 
         if msg_type != 'text' or not content:
             return
+
+        wechat_group_bot_config = self.get_wechat_group_bot_config(chatroomname)
+        rsvp_group = Rsvp(
+            self.conf['rsvp']['url'],
+            wechat_group_bot_config['bot_id'],
+            wechat_group_bot_config['share_token'],
+            self.logger
+        )
 
         ts = datetime.now()
         nick_name = chatroom_member_info_dict[chatroomname][username]['nickname']
@@ -648,7 +695,7 @@ class ChatbotLogic:
 
         uid = f'openidgroup_{username}'
         try:
-            resp = self.rsvp_group.get_bot_response(content, uid)
+            resp = rsvp_group.get_bot_response(content, uid)
         except Exception as e:
             import traceback
             self.logger.error(traceback.format_exc())
@@ -661,13 +708,13 @@ class ChatbotLogic:
             similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
 
             if bot_reply:
-                self.zidou.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
+                zidou_bot.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
 
             if start_miniprogram:
-                miniprogram_id_and_ts = self.zidou.get_miniprogram_id_and_ts('棱小镜')
+                miniprogram_id_and_ts = zidou_bot.get_miniprogram_id_and_ts('棱小镜')
                 if miniprogram_id_and_ts and not bot_reply:
-                    self.zidou.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
-                    self.zidou.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
+                    zidou_bot.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
+                    zidou_bot.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
         else:
             bot_reply = ''
             similarity = 0
@@ -693,8 +740,9 @@ class ChatbotLogic:
         self._update_user_stat(ts.date())
 
     def get_wechat_group_list(self, chatroom_member_info_dict):
-        # TODO: cache
-        chatroom_list = self.zidou.get_chatroom_list()
+        # TODO: cache for 1 min
+        zidou_bot = self.get_zidou_bot()
+        chatroom_list = zidou_bot.get_chatroom_list()
         result = []
         for chatroom in chatroom_list:
             chatroomname = chatroom.get('chatroomname')
@@ -702,7 +750,7 @@ class ChatbotLogic:
             owner_nick_name = None
             owner_avatar_url = None
             if roomowner not in chatroom_member_info_dict.get(chatroomname, {}):
-                chatroom_member_info_dict[chatroomname] = self.zidou.get_member_info(chatroomname)
+                chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
 
             chatroom_member_info = chatroom_member_info_dict.get(chatroomname, {})
             owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
