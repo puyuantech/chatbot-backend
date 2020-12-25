@@ -1,5 +1,5 @@
 from flask import g
-from bases.exceptions import LogicError
+from bases.exceptions import VerifyError
 from bases.viewhandler import ApiViewHandler
 from models.chat_bot import ChatbotDialogTag, ChatbotTag
 from utils.decorators import login_required, params_required, permission_required
@@ -33,7 +33,7 @@ class TagAPI(ApiViewHandler):
             tag_name=self.input.tag_name,
             dialog_id=self.input.dialog_id,
         ).one_or_none():
-            raise LogicError('标签已存在！')
+            raise VerifyError('标签已存在!')
 
         if not ChatbotTag.filter_by_query(tag_name=self.input.tag_name).one_or_none():
             ChatbotTag.create(
