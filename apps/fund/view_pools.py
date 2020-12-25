@@ -36,7 +36,10 @@ class FundPoolAPI(ApiViewHandler):
         if self.input.pool_type not in PoolType.get_codes():
             raise ParamsError('未知参数: (pool_type){}'.format(self.input.pool_type))
 
-        fund = FundPool.get_by_query(self.input.tag_id)
+        fund = FundPool.get_by_query(
+            fund_id=self.input.fund_id,
+            pool_type=self.input.pool_type,
+        )
         fund.logic_delete()
         return 'success'
 
@@ -51,7 +54,7 @@ class FundPoolsAPI(ApiViewHandler):
             raise ParamsError('未知参数: (pool_type){}'.format(self.input.pool_type))
 
         fund_ids = FundPool.get_fund_ids(self.input.pool_type)
-        return {'fund_ids': fund_ids}
+        return fund_ids
 
     @login_required
     @permission_required('基金管理')
