@@ -1,6 +1,8 @@
 
 import requests
 
+from typing import List
+
 from bases.globals import settings
 
 
@@ -25,7 +27,10 @@ class Robo:
         return cls._parse_result(response.json())
 
     @classmethod
-    def get_fund_info(cls, fund_ids, user_id=None):
+    def get_fund_info(cls, fund_ids, user_id=None) -> List[dict]:
+        if not fund_ids:
+            return []
+
         endpoint = '/api/v1/robo/fund/info'
         data = {
             'fund_ids': fund_ids,
