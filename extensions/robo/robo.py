@@ -38,3 +38,14 @@ class Robo:
         }
         return cls._request_post(endpoint, data)
 
+    @classmethod
+    def get_fund_types(cls, fund_ids) -> dict:
+        if not fund_ids:
+            return {'股票型': 0, '指数型': 0}
+
+        endpoint = '/api/v1/robo/fund/types'
+        data = {
+            'fund_ids': fund_ids,
+        }
+        return cls._request_post(endpoint, data)
+

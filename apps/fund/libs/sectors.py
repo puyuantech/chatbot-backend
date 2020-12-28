@@ -1,4 +1,5 @@
 
+from collections import defaultdict
 from flask import g
 
 from bases.exceptions import VerifyError
@@ -11,12 +12,11 @@ def check_sector_name_valid(sector_name, tag_names, sector_id=None):
         raise VerifyError(f'板块名【{sector_name}】不能与别名重复!')
 
     sector_names = SectorInfo.get_sector_names(sector_id)
-    tag_names = SectorTag.get_tag_names(sector_id)
 
     if sector_name in sector_names:
         raise VerifyError(f'板块名【{sector_name}】已存在!')
 
-    if sector_name in tag_names:
+    if sector_name in SectorTag.get_tag_names(sector_id):
         raise VerifyError(f'别名【{sector_name}】已存在, 板块名不能与别名重复!')
 
     for tag_name in tag_names:
@@ -41,4 +41,27 @@ def get_sector_info(sector_id):
         'tag_names': tag_names,
         'fund_info': fund_info,
     }
+
+
+def get_sector_list_info():
+    sectors = SectorInfo.filter_by_query().all()
+
+    sector_tags = defaultdict(list)
+    for sector_tag in SectorTag.filter_by_query().all():
+        sector_tags[sector_tag.sector_id].append(sector_tag.tag_name)
+
+    sector_funds = defaultdict(list)
+    for sector_fund in SectorFund.filter_by_query().all():
+        sector_funds[sector_fund.sector_id].append(sector_fund.fund_id)
+
+    return [
+        {
+            'sector_id': sector.id,
+            'sector_name': sector.sector_name,
+            'remark': sector.remark,
+            'tag_names': sector_tags[sector.id],
+            'fund_types': Robo.get_fund_types(sector_funds[sector.id]),
+        }
+        for sector in sectors
+    ]
 

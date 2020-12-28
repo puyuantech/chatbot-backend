@@ -6,7 +6,7 @@ from bases.viewhandler import ApiViewHandler
 from models import SectorFund, SectorInfo, SectorTag
 from utils.decorators import login_required, params_required, permission_required
 
-from .libs.sectors import check_sector_name_valid, get_sector_info
+from .libs.sectors import check_sector_name_valid, get_sector_info, get_sector_list_info
 
 
 class SectorNameAPI(ApiViewHandler):
@@ -24,7 +24,7 @@ class SectorInfoAPI(ApiViewHandler):
     @permission_required('基金管理')
     @params_required(*['sector_id'])
     def get(self):
-        '''获取板块信息'''
+        '''获取板块'''
         return get_sector_info(self.input.sector_id)
 
     @login_required
@@ -47,7 +47,7 @@ class SectorInfoAPI(ApiViewHandler):
             sector.delete()
             raise e
 
-        return sector.id
+        return {'sector_id': sector.id}
 
     @login_required
     @permission_required('基金管理')
@@ -83,4 +83,13 @@ class SectorInfoAPI(ApiViewHandler):
 
         db.session.commit()
         return 'success'
+
+
+class SectorInfosAPI(ApiViewHandler):
+
+    @login_required
+    @permission_required('基金管理')
+    def get(self):
+        '''获取板块列表'''
+        return get_sector_list_info()
 
