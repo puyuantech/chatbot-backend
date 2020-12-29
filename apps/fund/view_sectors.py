@@ -10,10 +10,16 @@ from .libs.sectors import check_sector_name_valid, get_sector_info, get_sector_l
 
 class SectorNameAPI(ApiViewHandler):
 
-    @params_required(*['sector_name', 'tag_names'])
+    @params_required(*['sector_name'])
+    def get(self):
+        sector_id = request.args.get('sector_id')
+        check_sector_name_valid(sector_name=self.input.sector_name, sector_id=sector_id)
+        return 'success'
+
+    @params_required(*['tag_names'])
     def post(self):
         sector_id = request.json.get('sector_id')
-        check_sector_name_valid(self.input.sector_name, self.input.tag_names, sector_id)
+        check_sector_name_valid(tag_names=self.input.tag_names, sector_id=sector_id)
         return 'success'
 
 

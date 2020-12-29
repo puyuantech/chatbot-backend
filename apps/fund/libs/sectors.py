@@ -7,21 +7,23 @@ from extensions.robo import Robo
 from models import SectorFund, SectorInfo, SectorTag
 
 
-def check_sector_name_valid(sector_name, tag_names, sector_id=None):
-    if sector_name in tag_names:
-        raise VerifyError(f'板块名【{sector_name}】不能与别名重复!')
-
+def check_sector_name_valid(sector_name=None, tag_names=None, sector_id=None):
     sector_names = SectorInfo.get_sector_names(sector_id)
 
-    if sector_name in sector_names:
-        raise VerifyError(f'板块名【{sector_name}】已存在!')
+    if sector_name is not None:
+        if tag_names is not None and sector_name in tag_names:
+            raise VerifyError(f'板块名【{sector_name}】不能与别名重复!')
 
-    if sector_name in SectorTag.get_tag_names(sector_id):
-        raise VerifyError(f'别名【{sector_name}】已存在, 板块名不能与别名重复!')
+        if sector_name in sector_names:
+            raise VerifyError(f'板块名【{sector_name}】已存在!')
 
-    for tag_name in tag_names:
-        if tag_name in sector_names:
-            raise VerifyError(f'板块名【{tag_name}】已存在, 别名不能与板块名重复!')
+        if sector_name in SectorTag.get_tag_names(sector_id):
+            raise VerifyError(f'别名【{sector_name}】已存在, 板块名不能与别名重复!')
+
+    if tag_names is not None:
+        for tag_name in tag_names:
+            if tag_name in sector_names:
+                raise VerifyError(f'板块名【{tag_name}】已存在, 别名不能与板块名重复!')
 
 
 def get_sector_info(sector_id):
