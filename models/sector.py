@@ -19,6 +19,41 @@ class SectorInfo(BaseModel):
             sector_names = sector_names.filter(cls.id != exclude_id)
         return set(sector_name for sector_name, in sector_names.all())
 
+    @classmethod
+    def create_sector(cls, sector_name, remark, tag_names, fund_ids):
+        self = cls.create()
+
+        try:
+            self.update_sector(sector_name, remark, tag_names, fund_ids)
+        except Exception as e:
+            self.delete()
+            raise e
+
+        return self
+
+    def update_sector(self, sector_name, remark, tag_names, fund_ids):
+        self.update(
+            commit=False,
+            sector_name=sector_name,
+            remark=remark,
+        )
+
+        SectorTag.update_sector_tags(self.id, tag_names, commit=False)
+        SectorFund.update_sector_funds(self.id, fund_ids, commit=False)
+
+        db.session.commit()
+
+    def delete_sector(self):
+        self.logic_delete(commit=False)
+
+        for sector_tag in SectorTag.filter_by_query(sector_id=self.id).all():
+            sector_tag.logic_delete(commit=False)
+
+        for sector_fund in SectorFund.filter_by_query(sector_id=self.id).all():
+            sector_fund.logic_delete(commit=False)
+
+        db.session.commit()
+
 
 class SectorTag(BaseModel):
     '''板块别名'''

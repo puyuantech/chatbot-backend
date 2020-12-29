@@ -7,7 +7,7 @@ from extensions.robo import Robo
 from models import FundPool
 from utils.decorators import login_required, params_required
 
-from .constants import PoolType
+from .libs.pools import check_pool_type_valid
 
 
 class FundInfoAPI(ApiViewHandler):
@@ -26,10 +26,8 @@ class FundInfosAPI(ApiViewHandler):
 
     @login_required
     @params_required(*['pool_type'])
+    @check_pool_type_valid
     def get(self):
-        if self.input.pool_type not in PoolType.get_codes():
-            raise ParamsError('参数不支持! (pool_type){}'.format(self.input.pool_type))
-
         fund_ids = FundPool.get_fund_ids(self.input.pool_type)
         fund_info = Robo.get_fund_info(fund_ids, g.user.id)
         return fund_info
