@@ -17,20 +17,38 @@ class FundPool(BaseModel):
         return [fund.fund_id for fund in funds]
 
     @classmethod
-    def delete_fund_ids(cls, fund_ids, pool_type):
-        if not fund_ids:
-            return
+    def add_fund_ids(cls, fund_ids, pool_type, silent=True):
+        existing_fund_ids = cls.get_fund_ids(pool_type)
+        for fund_id in fund_ids:
+            if fund_id in existing_fund_ids:
+                if not silent:
+                    raise VerifyError('基金已存在!')
+                continue
+            cls(fund_id=fund_id, pool_type=pool_type).save(commit=False)
+        db.session.commit()
 
+    @classmethod
+    def delete_fund_ids(cls, fund_ids, pool_type, silent=True):
         funds = cls.query.filter(
             cls.pool_type == pool_type,
             cls.is_deleted == False,
             cls.fund_id.in_(fund_ids),
         ).all()
 
+        if not silent and len(set(fund_ids)) > len(funds):
+            raise VerifyError('基金不存在!')
+
         for fund in funds:
             fund.logic_delete(commit=False)
-
         db.session.commit()
+
+    @classmethod
+    def add_fund_id(cls, fund_id, pool_type):
+        cls.add_fund_ids([fund_id], pool_type, silent=False)
+
+    @classmethod
+    def delete_fund_id(cls, fund_id, pool_type):
+        cls.delete_fund_ids([fund_id], pool_type, silent=False)
 
 
 class FundManager(BaseModel):
