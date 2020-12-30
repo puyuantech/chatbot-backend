@@ -6,3 +6,4 @@ from .permission import *
 from .sector import *
 from .user import *
 from .wechat import *
+from .article import *

@@ -45,4 +45,3 @@ class FundInfosAPI(ApiViewHandler):
 
         fund_info = Robo.get_fund_info(self.input.fund_ids, g.user.id)
         return fund_info
-
