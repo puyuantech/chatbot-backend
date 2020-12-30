@@ -7,3 +7,11 @@ class PoolType(EnumBase):
     新星 = 'new'
     老司机 = 'old'
 
+
+class RecommendFundType(EnumBase):
+    股票 = 'stock'
+    债券 = 'bond'
+    指数 = 'index'
+    QDII = 'QDII'
+    货币 = 'mmf'
+

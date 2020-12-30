@@ -5,6 +5,7 @@ from flask_restful import Api
 from .view_funds import FundInfoAPI, FundInfosAPI
 from .view_managers import FundManagerAPI, FundManagersAPI
 from .view_pools import FundPoolAPI, FundPoolsAPI
+from .view_recommend import FundRecommendMenuAPI
 from .view_sectors import SectorNameAPI, SectorInfoAPI, SectorInfosAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/fund')
@@ -18,6 +19,8 @@ api.add_resource(FundManagersAPI, '/manager/list')
 
 api.add_resource(FundPoolAPI, '/pool')
 api.add_resource(FundPoolsAPI, '/pool/list')
+
+api.add_resource(FundRecommendMenuAPI, '/recommend/menu')
 
 api.add_resource(SectorNameAPI, '/sector/name')
 api.add_resource(SectorInfoAPI, '/sector/info')

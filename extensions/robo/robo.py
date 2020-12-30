@@ -49,3 +49,8 @@ class Robo:
         }
         return cls._request_post(endpoint, data)
 
+    @classmethod
+    def get_index_list(cls) -> List[str]:
+        endpoint = '/api/v1/robo/index/list'
+        return cls._request_get(endpoint)
+
