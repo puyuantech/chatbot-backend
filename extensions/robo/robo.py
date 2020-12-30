@@ -39,6 +39,18 @@ class Robo:
         return cls._request_post(endpoint, data)
 
     @classmethod
+    def get_fund_manager_info(cls, manager_ids, user_id=None) -> List[dict]:
+        if not manager_ids:
+            return []
+
+        endpoint = '/api/v1/robo/fund/manager'
+        data = {
+            'manager_ids': manager_ids,
+            'user_id': user_id,
+        }
+        return cls._request_post(endpoint, data)
+
+    @classmethod
     def get_fund_by_pagination(cls, fund_ids, user_id, fund_type, page, page_size, ordering) -> List[dict]:
         endpoint = '/api/v1/robo/fund/pagination'
         data = {
