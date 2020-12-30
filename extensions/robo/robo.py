@@ -39,6 +39,19 @@ class Robo:
         return cls._request_post(endpoint, data)
 
     @classmethod
+    def get_fund_by_pagination(cls, fund_ids, user_id, fund_type, page, page_size, ordering) -> List[dict]:
+        endpoint = '/api/v1/robo/fund/pagination'
+        data = {
+            'fund_ids': fund_ids,
+            'user_id': user_id,
+            'fund_type': fund_type,
+            'page': page,
+            'page_size': page_size,
+            'ordering': ordering,
+        }
+        return cls._request_post(endpoint, data)
+
+    @classmethod
     def get_fund_types(cls, fund_ids) -> dict:
         if not fund_ids:
             return {'股票型': 0, '指数型': 0}

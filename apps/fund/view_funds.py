@@ -7,6 +7,7 @@ from extensions.robo import Robo
 from models import FundPool
 from utils.decorators import login_required, params_required
 
+from .libs.fund import generate_fund_query_params
 from .libs.pools import check_pool_type_valid
 
 
@@ -25,11 +26,15 @@ class FundInfoAPI(ApiViewHandler):
 class FundInfosAPI(ApiViewHandler):
 
     @login_required
-    @params_required(*['pool_type'])
+    @params_required(*['pool_type', 'fund_type'])
     @check_pool_type_valid
     def get(self):
+        query_params = generate_fund_query_params()
+
         fund_ids = FundPool.get_fund_ids(self.input.pool_type)
-        fund_info = Robo.get_fund_info(fund_ids, g.user.id)
+        fund_info = Robo.get_fund_by_pagination(
+            fund_ids, g.user.id, self.input.fund_type, **query_params
+        )
         return fund_info
 
     @login_required
