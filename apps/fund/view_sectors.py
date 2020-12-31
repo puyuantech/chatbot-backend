@@ -34,26 +34,26 @@ class SectorInfoAPI(ApiViewHandler):
 
     @login_required
     @permission_required('基金管理')
-    @params_required(*['sector_name', 'tag_names', 'remark', 'fund_ids'])
+    @params_required(*['sector_name', 'tag_names', 'fund_ids'])
     def post(self):
         '''创建板块'''
         check_sector_name_valid(self.input.sector_name, self.input.tag_names)
 
         sector = SectorInfo.create_sector(
-            self.input.sector_name, self.input.remark, self.input.tag_names, self.input.fund_ids,
+            self.input.sector_name, request.json.get('remark', ''), self.input.tag_names, self.input.fund_ids,
         )
 
         return {'sector_id': sector.id}
 
     @login_required
     @permission_required('基金管理')
-    @params_required(*['sector_id', 'sector_name', 'tag_names', 'remark', 'fund_ids'])
+    @params_required(*['sector_id', 'sector_name', 'tag_names', 'fund_ids'])
     def put(self):
         '''更新板块'''
         check_sector_name_valid(self.input.sector_name, self.input.tag_names, self.input.sector_id)
 
         SectorInfo.get_by_id(self.input.sector_id).update_sector(
-            self.input.sector_name, self.input.remark, self.input.tag_names, self.input.fund_ids,
+            self.input.sector_name, request.json.get('remark', ''), self.input.tag_names, self.input.fund_ids,
         )
 
         return 'success'
