@@ -30,6 +30,13 @@ def init_admin(username, password):
     print('\033[32m {} 创建成功！！！'.format(username))
 
 
+@manager.command
+def init_es():
+    from extensions.es.es_rebuilder import re_build
+    re_build()
+    print('\033[32m es 创建成功！！！')
+
+
 if __name__ == '__main__':
     manager.run()
 

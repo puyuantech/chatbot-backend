@@ -6,6 +6,7 @@ from apps.captchas import blu as captcha_blu
 from apps.evaluations import blu as eval_blu
 from apps.fund import blu as fund_blu
 from apps.articles import blu as articles_blu
+from apps.es import blu as searcher_blu
 
 routers = [
     accounts_blu,
@@ -16,5 +17,6 @@ routers = [
     eval_blu,
     fund_blu,
     articles_blu,
+    searcher_blu,
 ]
 
