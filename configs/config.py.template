@@ -57,6 +57,15 @@ THIRD_SETTING = {
     }
 }
 
+# elastic searcher settings
+ES = {
+    "es_test": {
+        "hosts": ["39.98.109.26:9200"],
+        "username": "elastic",
+        "password": "7QspOCSeKjeKrzyaFvc0",
+    }
+}
+
 # prism 数据地址
 PRISM_HOST = ''
 PRISM_PLATFORM = ''
