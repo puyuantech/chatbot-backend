@@ -26,6 +26,26 @@ class FundInfoAPI(ApiViewHandler):
 class FundInfosAPI(ApiViewHandler):
 
     @login_required
+    @params_required(*['pool_type'])
+    @check_pool_type_valid
+    def get(self):
+        fund_ids = FundPool.get_fund_ids(self.input.pool_type)
+        fund_info = Robo.get_fund_info(fund_ids, g.user.id)
+        return fund_info
+
+    @login_required
+    @params_required(*['fund_ids'])
+    def post(self):
+        if not isinstance(self.input.fund_ids, list):
+            raise ParamsError('参数类型错误! (fund_ids){}'.format(self.input.fund_ids))
+
+        fund_info = Robo.get_fund_info(self.input.fund_ids, g.user.id)
+        return fund_info
+
+
+class FundInfosPaginationAPI(ApiViewHandler):
+
+    @login_required
     @params_required(*['pool_type', 'fund_type'])
     @check_pool_type_valid
     def get(self):
@@ -37,11 +57,3 @@ class FundInfosAPI(ApiViewHandler):
         )
         return fund_info
 
-    @login_required
-    @params_required(*['fund_ids'])
-    def post(self):
-        if not isinstance(self.input.fund_ids, list):
-            raise ParamsError('参数类型错误! (fund_ids){}'.format(self.input.fund_ids))
-
-        fund_info = Robo.get_fund_info(self.input.fund_ids, g.user.id)
-        return fund_info

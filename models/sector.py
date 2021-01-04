@@ -20,6 +20,15 @@ class SectorInfo(BaseModel):
         return set(sector_name for sector_name, in sector_names.all())
 
     @classmethod
+    def get_funds_by_sector_name(cls, sector_name: str):
+        sector = cls.filter_by_query(sector_name=sector_name.upper()).one_or_none()
+        if not sector:
+            return []
+
+        sector_funds = SectorFund.filter_by_query(sector_id=sector.id).all()
+        return [sector_fund.fund_id for sector_fund in sector_funds]
+
+    @classmethod
     def create_sector(cls, sector_name, remark, tag_names, fund_ids):
         self = cls.create()
 
