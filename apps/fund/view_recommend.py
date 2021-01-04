@@ -80,15 +80,19 @@ class FundRecommendByPreferenceAPI(ApiViewHandler):
 
         if self.input.preference == '打新':
             filters = {'是否是打新基金': 1}
+            url = Robo.host + '/m/#/mp/billboard/funds-new?user_id={}&chatbot=true'.format(self.input.user_id)
         elif self.input.preference == '可转债':
             filters = {'是否是可转债基金': 1}
+            url = Robo.host + '/m/#/mp/billboard/funds-transfer?user_id={}&chatbot=true'.format(self.input.user_id)
         elif self.input.preference == '绝对收益':
             filters = {'是否是绝对收益基金': 1}
+            url = Robo.host + '/m/#/mp/billboard/funds-profit?user_id={}&chatbot=true'.format(self.input.user_id)
         else:
             filters = None
+            url = None
 
         fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, filters=filters)
-        return fund_info
+        return {'跳转链接': url, **fund_info}
 
 
 class FundRecommendByIndexAPI(ApiViewHandler):

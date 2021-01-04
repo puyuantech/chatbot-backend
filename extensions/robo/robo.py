@@ -8,7 +8,7 @@ from bases.globals import settings
 
 class Robo:
 
-    host = settings['PRISM_HOST']
+    host: str = settings['PRISM_HOST']
 
     @staticmethod
     def _parse_result(result):
