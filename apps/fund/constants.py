@@ -2,6 +2,9 @@
 from bases.base_enmu import EnumBase
 
 
+EMPTY_VALUE = {None, '', 'null'}
+
+
 class PoolType(EnumBase):
     精选 = 'basic'
     新星 = 'new'
