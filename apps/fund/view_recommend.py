@@ -28,18 +28,18 @@ class FundRecommendMenuAPI(ApiViewHandler):
 class FundRecommendBySectorAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'sector_name'])
-    @get_match_risk_level
     def post(self):
+        risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = SectorInfo.get_funds_by_sector_name(self.input.sector_name)
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level)
         return fund_info
 
 
 class FundRecommendByAbilityAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'ability'])
-    @get_match_risk_level
     def post(self):
+        risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = FundPool.get_fund_ids('basic')
 
         if self.input.ability in ('业绩', '收益', '收益能力'):
@@ -57,25 +57,25 @@ class FundRecommendByAbilityAPI(ApiViewHandler):
         else:
             ordering = None
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, ordering=ordering)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, ordering=ordering)
         return fund_info
 
 
 class FundRecommendByFundTypeAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'fund_type'])
-    @get_match_risk_level
     def post(self):
+        risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, filters={'基金类型': self.input.fund_type})
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, filters={'基金类型': self.input.fund_type})
         return fund_info
 
 
 class FundRecommendByPreferenceAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'preference'])
-    @get_match_risk_level
     def post(self):
+        risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = FundPool.get_fund_ids('basic')
 
         if self.input.preference == '打新':
@@ -91,15 +91,15 @@ class FundRecommendByPreferenceAPI(ApiViewHandler):
             filters = None
             url = None
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, filters=filters)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, filters=filters)
         return {'跳转链接': url, **fund_info}
 
 
 class FundRecommendByIndexAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'index'])
-    @get_match_risk_level
     def post(self):
+        risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         index_list = Robo.get_index_list()
         if self.input.index not in index_list:
             raise VerifyError('精选指数不存在! (index){}'.format(self.input.index))
@@ -108,7 +108,7 @@ class FundRecommendByIndexAPI(ApiViewHandler):
         index_code = index_list[self.input.index]
         contains = {'指数列表': f'"{index_code}"'}
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, contains=contains)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, contains=contains)
         return fund_info
 
 
