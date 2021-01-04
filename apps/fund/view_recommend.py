@@ -1,6 +1,4 @@
 
-from flask import g
-
 from bases.exceptions import VerifyError
 from bases.viewhandler import ApiViewHandler
 from extensions.robo import Robo
@@ -29,19 +27,17 @@ class FundRecommendMenuAPI(ApiViewHandler):
 
 class FundRecommendBySectorAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['sector_name'])
+    @params_required(*['user_id', 'sector_name'])
     @get_match_risk_level
     def post(self):
         fund_ids = SectorInfo.get_funds_by_sector_name(self.input.sector_name)
-        fund_info = Robo.get_fund_by_recommend(fund_ids, g.user.id, self.input.risk_level)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level)
         return fund_info
 
 
 class FundRecommendByAbilityAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['ability'])
+    @params_required(*['user_id', 'ability'])
     @get_match_risk_level
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
@@ -61,25 +57,23 @@ class FundRecommendByAbilityAPI(ApiViewHandler):
         else:
             ordering = None
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, g.user.id, self.input.risk_level, ordering=ordering)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, ordering=ordering)
         return fund_info
 
 
 class FundRecommendByFundTypeAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['fund_type'])
+    @params_required(*['user_id', 'fund_type'])
     @get_match_risk_level
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend(fund_ids, g.user.id, self.input.risk_level, filters={'基金类型': self.input.fund_type})
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, filters={'基金类型': self.input.fund_type})
         return fund_info
 
 
 class FundRecommendByPreferenceAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['preference'])
+    @params_required(*['user_id', 'preference'])
     @get_match_risk_level
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
@@ -93,14 +87,13 @@ class FundRecommendByPreferenceAPI(ApiViewHandler):
         else:
             filters = None
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, g.user.id, self.input.risk_level, filters=filters)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, filters=filters)
         return fund_info
 
 
 class FundRecommendByIndexAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['index'])
+    @params_required(*['user_id', 'index'])
     @get_match_risk_level
     def post(self):
         index_list = Robo.get_index_list()
@@ -111,18 +104,17 @@ class FundRecommendByIndexAPI(ApiViewHandler):
         index_code = index_list[self.input.index]
         contains = {'指数列表': f'"{index_code}"'}
 
-        fund_info = Robo.get_fund_by_recommend(fund_ids, g.user.id, self.input.risk_level, contains=contains)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, self.input.risk_level, contains=contains)
         return fund_info
 
 
 class FundRecommendByXirrAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['init_bench', 'amt_bench', 'tot_mv', 'periods', 'risk_level'])
+    @params_required(*['user_id', 'init_bench', 'amt_bench', 'tot_mv', 'periods', 'risk_level'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
         fund_info = Robo.get_fund_by_recommend_xirr(
-            fund_ids, g.user.id, self.input.risk_level, self.input.init_bench,
+            fund_ids, self.input.user_id, self.input.risk_level, self.input.init_bench,
             self.input.amt_bench, self.input.tot_mv, self.input.periods,
         )
         return fund_info
@@ -130,12 +122,11 @@ class FundRecommendByXirrAPI(ApiViewHandler):
 
 class FundRecommendByRiskIncomeAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['min_income', 'max_income', 'min_risk', 'max_risk', 'risk_level'])
+    @params_required(*['user_id', 'min_income', 'max_income', 'min_risk', 'max_risk', 'risk_level'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
         fund_info = Robo.get_fund_by_recommend_risk_income(
-            fund_ids, g.user.id, self.input.risk_level, self.input.min_income / 100,
+            fund_ids, self.input.user_id, self.input.risk_level, self.input.min_income / 100,
             self.input.max_income / 100, self.input.min_risk / 100, self.input.max_risk / 100,
         )
         return fund_info
@@ -143,8 +134,7 @@ class FundRecommendByRiskIncomeAPI(ApiViewHandler):
 
 class FundRecommendByBenchmarkAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['benchmark', 'comparison', 'digital'])
+    @params_required(*['user_id', 'benchmark', 'comparison', 'digital'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
 
@@ -162,45 +152,41 @@ class FundRecommendByBenchmarkAPI(ApiViewHandler):
                 max_risk = digital
 
         fund_info = Robo.get_fund_by_recommend_risk_income(
-            fund_ids, g.user.id, None, min_income, max_income, min_risk, max_risk,
+            fund_ids, self.input.user_id, None, min_income, max_income, min_risk, max_risk,
         )
         return fund_info
 
 
 class FundRecommendByHoldStockAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['stock_name'])
+    @params_required(*['user_id', 'stock_name'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend_hold_stock(fund_ids, g.user.id, self.input.stock_name)
+        fund_info = Robo.get_fund_by_recommend_hold_stock(fund_ids, self.input.user_id, self.input.stock_name)
         return fund_info
 
 
 class FundRecommendByHoldBondAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['bond_name'])
+    @params_required(*['user_id', 'bond_name'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend_hold_bond(fund_ids, g.user.id, self.input.bond_name)
+        fund_info = Robo.get_fund_by_recommend_hold_bond(fund_ids, self.input.user_id, self.input.bond_name)
         return fund_info
 
 
 class FundRecommendByETFAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['index', 'etf_type'])
+    @params_required(*['user_id', 'index', 'etf_type'])
     def post(self):
-        fund_info = Robo.get_fund_by_recommend_etf(g.user.id, self.input.index, self.input.etf_type)
+        fund_info = Robo.get_fund_by_recommend_etf(self.input.user_id, self.input.index, self.input.etf_type)
         return fund_info
 
 
 class FundRecommendByKeyAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['ordering'])
+    @params_required(*['user_id', 'ordering'])
     def post(self):
-        fund_info = Robo.get_fund_by_recommend(None, g.user.id, None, ordering=self.input.ordering)
+        fund_info = Robo.get_fund_by_recommend(None, self.input.user_id, None, ordering=self.input.ordering)
         return fund_info
 
