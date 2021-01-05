@@ -233,12 +233,21 @@ class WeChatOABuilder(BaseIndexer):
 class WeChatOAArticleBuilder(BaseIndexer):
 
     @classmethod
-    def build_doc_param(cls, article_id, article_title):
+    def build_doc_param(cls, article_id, article_title, wxname, doc_id, url, title, cover, read, like, click_ts, doc_ct):
         return {
             'article_id': article_id,
             'article_title': article_title,
             'article_title_pinyin': article_title,
             'article_title_first': build_pinyin(article_title),
+            'wxname': wxname,
+            'doc_id': doc_id,
+            'url': url,
+            'title': title,
+            'cover': cover,
+            'read': read,
+            'like': like,
+            'click_ts': click_ts,
+            'doc_ct': doc_ct,
             'update_time': datetime.datetime.now(),
             'create_time': datetime.datetime.now(),
         }
