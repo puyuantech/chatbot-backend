@@ -30,7 +30,8 @@ class WXPublicAccountAPI(ApiViewHandler):
 
 class WXArticleAPI(ApiViewHandler):
 
-    def get(self, key_word):
+    def get(self):
+        key_word = request.args.get('key_word')
         wx_name = request.args.get('wx_name')
         if wx_name:
             wx_name = wx_name.split(',')
