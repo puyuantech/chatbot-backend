@@ -1,6 +1,7 @@
 import re
+import datetime
 from elasticsearch import NotFoundError
-from elasticsearch_dsl.query import Match, MatchPhrasePrefix
+from elasticsearch_dsl.query import Match, MatchPhrasePrefix, Terms, MultiMatch, Range, Term
 from elasticsearch_dsl import Q
 
 
@@ -27,7 +28,7 @@ class Searcher:
 
 class WXPublicAccountSearcher(Searcher):
 
-    def get_usually_query_result(self, key_word, offset, limit):
+    def get_usually_query_result(self, key_word, offset, limit, must_item=None):
         must, must_not, should, filters = [], [], [], []
         ss = self.doc_model.search()
         zh_model = re.compile(u'[a-z]')
@@ -55,7 +56,7 @@ class WXPublicAccountSearcher(Searcher):
 
 class WXArticleSearcher(Searcher):
 
-    def get_usually_query_result(self, key_word, offset, limit):
+    def get_usually_query_result(self, key_word, offset, limit, must_items=None, doc_ct_gt=None, doc_ct_lt=None):
         must, must_not, should, filters = [], [], [], []
         ss = self.doc_model.search()
         zh_model = re.compile(u'[a-z]')
@@ -66,6 +67,17 @@ class WXArticleSearcher(Searcher):
         else:
             should.append(Match(article_title=key_word))
 
+        if must_items:
+            print(must_items)
+            must.append(Terms(wxname=must_items))
+            # ss = ss.filter('term', wxname=must_item)
+
+        if doc_ct_gt:
+            filters.append(Range(doc_ct={'gt': datetime.datetime.strptime(doc_ct_gt, '%Y-%m-%d')}))
+
+        if doc_ct_lt:
+            filters.append(Range(doc_ct={'lt': datetime.datetime.strptime(doc_ct_lt, '%Y-%m-%d')}))
+
         should_match = 1  # if should else 0
         s = ss.query(Q(
             'bool',
@@ -75,6 +87,7 @@ class WXArticleSearcher(Searcher):
             should=should,
             minimum_should_match=should_match
         ))
+
 
         _ = s[offset: offset + limit].execute()
         count = _.hits.total

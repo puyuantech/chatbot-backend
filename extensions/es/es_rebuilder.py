@@ -32,6 +32,15 @@ def we_chat_article_rebuilder():
         param = builder.build_doc_param(
             df.loc[index, 'id'],
             df.loc[index, 'title'],
+            df.loc[index, 'wxname'],
+            df.loc[index, 'doc_id'],
+            df.loc[index, 'url'],
+            df.loc[index, 'title'],
+            df.loc[index, 'cover'],
+            df.loc[index, 'read'],
+            df.loc[index, 'like'],
+            df.loc[index, 'click_ts'],
+            df.loc[index, 'doc_ct'],
         )
         builder.add_bulk_data(df.loc[index, 'id'], param)
     builder.done_rebuild_index()
