@@ -61,16 +61,15 @@ class WXArticleSearcher(Searcher):
         ss = self.doc_model.search()
         zh_model = re.compile(u'[a-z]')
 
-        if zh_model.search(key_word):
-            should.append(MatchPhrasePrefix(article_title_pinyin=key_word))
-            should.append(MatchPhrasePrefix(article_title_first=key_word))
-        else:
-            should.append(Match(article_title=key_word))
+        if key_word:
+            if zh_model.search(key_word):
+                should.append(MatchPhrasePrefix(article_title_pinyin=key_word))
+                should.append(MatchPhrasePrefix(article_title_first=key_word))
+            else:
+                should.append(Match(article_title=key_word))
 
         if must_items:
-            print(must_items)
             must.append(Terms(wxname=must_items))
-            # ss = ss.filter('term', wxname=must_item)
 
         if doc_ct_gt:
             filters.append(Range(doc_ct={'gt': datetime.datetime.strptime(doc_ct_gt, '%Y-%m-%d')}))
@@ -78,7 +77,7 @@ class WXArticleSearcher(Searcher):
         if doc_ct_lt:
             filters.append(Range(doc_ct={'lt': datetime.datetime.strptime(doc_ct_lt, '%Y-%m-%d')}))
 
-        should_match = 1  # if should else 0
+        should_match = 0  # if should else 0
         s = ss.query(Q(
             'bool',
             must=must,
