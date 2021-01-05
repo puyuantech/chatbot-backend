@@ -67,7 +67,8 @@ class FundRecommendByFundTypeAPI(ApiViewHandler):
     def post(self):
         risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, filters={'基金类型': self.input.fund_type})
+        fund_type = RecommendFundType.parse(self.input.fund_type.upper()) or self.input.fund_type
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, filters={'基金类型': fund_type})
         return fund_info
 
 
