@@ -25,12 +25,11 @@ class FundInfoAPI(ApiViewHandler):
 
 class FundInfosAPI(ApiViewHandler):
 
-    @login_required
-    @params_required(*['pool_type'])
+    @params_required(*['user_id', 'pool_type'])
     @check_pool_type_valid
     def get(self):
         fund_ids = FundPool.get_fund_ids(self.input.pool_type)
-        fund_info = Robo.get_fund_info(fund_ids, g.user.id)
+        fund_info = Robo.get_fund_info(fund_ids, self.input.user_id)
         return classify_by_fund_type(fund_info)
 
     @login_required
