@@ -21,8 +21,8 @@ if __name__ == "__main__":
     account_mapping = get_account_mapping()
     # print(account_mapping)
 
-    # filename = '/shared/chat-bot/log/part_articles.xlsx'
-    filename = '/shared/chat-bot/log/history.xlsx'
+    # filename = '/shared/chat-bot/temp/part_articles.xlsx'
+    filename = '/shared/chat-bot/temp/history.xlsx'
     df = pd.read_excel(filename)
     df = df.drop(['id'], axis=1)
     df.columns = ['wxid', 'doc_id', 'seq', 'url', 'title', 'cover', 'doc_ct', 'read', 'like', 'click_ts']
