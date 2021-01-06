@@ -78,5 +78,10 @@ AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 AWS_PUBLIC_BUCKET_NAME = ''
 
+# 分词工具相关
+USER_DICT_FILE = '/shared/chat-bot/etc/user_dict.txt'
+FUND_COMPANY_LIST_FILE = '/shared/chat-bot/etc/fund_company_list.json'
+INVERTED_INDEX_FILE = '/shared/chat-bot/etc/inverted_index.json'
+
 # 企业微信推送相关设置
 BAD_CASE_REPORTER = 'https://sample_url'

@@ -5,6 +5,7 @@ import hashlib
 import requests
 
 from urllib import parse
+from extensions.segmentation import Segmentation
 
 
 class Rsvp(object):
@@ -58,7 +59,7 @@ class Rsvp(object):
 
         return data
 
-    def get_bot_response(self, query, uid, stage='release'):
+    def get_bot_response(self, query, uid, stage='release', final=False):
         params = self.get_request_params(query, uid, stage)
         resp = requests.get(self.chat_url, headers=self.req_headers, params=params)
         # if self.logger:
@@ -74,6 +75,12 @@ class Rsvp(object):
             else:
                 print(f'Fail to parse bot resp: {resp}')
             return None
+
+        if not final and resp.get('topic', 'fallback') == 'fallback':
+            segmentation = Segmentation()
+            candidates = segmentation.match(query)
+            if candidates:
+                return self.get_bot_response(candidates[0], query, uid, stage, final=True)
         
         return resp
 
