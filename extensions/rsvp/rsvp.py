@@ -69,6 +69,15 @@ class Rsvp(object):
         #     print(f'url: {resp.request.url}')
         #     print(f'headers: {resp.request.headers}')
         resp = resp.json()
+
+        # if not final:
+        #     if (not resp or resp.get('status', 1) != 0 or not resp.get('stage') 
+        #             or resp.get('topic', 'fallback') == 'fallback'):
+        #         segmentation = Segmentation()
+        #         candidates = segmentation.match(query)
+        #         if candidates:
+        #             return self.get_bot_response(candidates[0], query, uid, stage, final=True)
+
         if not resp or resp.get('status', 1) != 0 or not resp.get('stage'):
             if self.logger:
                 self.logger.error(f'Fail to parse bot resp: {resp}')
@@ -76,12 +85,6 @@ class Rsvp(object):
                 print(f'Fail to parse bot resp: {resp}')
             return None
 
-        if not final and resp.get('topic', 'fallback') == 'fallback':
-            segmentation = Segmentation()
-            candidates = segmentation.match(query)
-            if candidates:
-                return self.get_bot_response(candidates[0], query, uid, stage, final=True)
-        
         return resp
 
     def get_bot_info(self):

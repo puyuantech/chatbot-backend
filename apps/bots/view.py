@@ -227,6 +227,14 @@ def _wechat_chatroom_msg_callback():
     return SUCCESS_RSP()
 
 
+@api.route("/api/v1/chatbot/wechat_group/send_msg", methods=["POST"])
+def _send_msg():
+    """微信群成员聊天记录及回复"""
+    self_logic = ChatbotLogic(current_app.logger)
+    self_logic.send_msg(request.json)
+    return SUCCESS_RSP()
+
+
 @api.route("/api/v1/chatbot/wechat_group/list", methods=["GET"])
 @view_login_required
 def _get_wechat_group_list():
