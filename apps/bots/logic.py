@@ -15,6 +15,7 @@ from models import (
 from extensions.rsvp import Rsvp
 from extensions.zidou import ZiDou
 from extensions.cognai import Cognai
+from extensions.url_manager import UrlManager
 from extensions.wxwork import WxWorkNotification
 from .constants import Operation, TagType
 from .libs.tags import get_tags_by_dialog_id
@@ -820,10 +821,12 @@ class ChatbotLogic:
                 if 'text' in link:
                     reply +=  f'\n{link["text"]}：\n'
                 if 'url' in link:
-                    if wechat_group_id and link['url'].startswith('https://www.prism-advisor.com/'):
-                        reply += link['url'] + f'&group={wechat_group_id}\n'
-                    else:
-                        reply += link['url'] + f'\n'
+                    url = link['url']
+                    if url.startswith('https://www.prism-advisor.com/'):
+                        if wechat_group_id:
+                            url = f'{url}&group={wechat_group_id}'
+                        url = UrlManager.generate_short_url(url)
+                    reply +=  f'{url}\n'
             if 'cards' in stage:
                 cards = stage['cards']
                 for card in cards.get('cards', []):
@@ -834,8 +837,12 @@ class ChatbotLogic:
                     for button in card.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
-                                clicks.append(f'{postback}&group={wechat_group_id}\n')
+                            if postback.startswith('https://www.prism-advisor.com/'):
+                                if wechat_group_id:
+                                    url  = f'{postback}&group={wechat_group_id}'
+                                else:
+                                    url = postback
+                                clicks.append(f'{UrlManager.generate_short_url(url)}\n')
                             else:
                                 replies.append(f'{postback}\n')
                     if clicks:
@@ -859,8 +866,12 @@ class ChatbotLogic:
                     for button in item.get('buttons', []):
                         if 'postback' in button:
                             postback = button.get('postback')
-                            if wechat_group_id and postback.startswith('https://www.prism-advisor.com/'):
-                                clicks.append(f'{postback}&group={wechat_group_id}\n')
+                            if postback.startswith('https://www.prism-advisor.com/'):
+                                if wechat_group_id:
+                                    url  = f'{postback}&group={wechat_group_id}'
+                                else:
+                                    url = postback
+                                clicks.append(f'{UrlManager.generate_short_url(url)}\n')
                             else:
                                 replies.append(f'{postback}\n')
                     if clicks:
