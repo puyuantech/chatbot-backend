@@ -879,7 +879,7 @@ class ChatbotLogic:
                 quick_replies = stage['quickReplies']
                 if 'quickReplies' in quick_replies:
                     quick_replies = quick_replies['quickReplies']
-                    reply += '\n您可以说：\n'
+                    reply += '—————————————\n您可以说：\n'
                     for quick_reply in quick_replies:
                         reply += f'{quick_reply["postback"]}\n'
 
