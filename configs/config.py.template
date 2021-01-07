@@ -85,3 +85,6 @@ INVERTED_INDEX_FILE = '/shared/chat-bot/etc/inverted_index.json'
 
 # 企业微信推送相关设置
 BAD_CASE_REPORTER = 'https://sample_url'
+
+# 短链接生成
+SHORT_URL_KEY = ''
