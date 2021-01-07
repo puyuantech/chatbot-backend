@@ -748,6 +748,20 @@ class ChatbotLogic:
         self._update_dialog_stat(user_id, ts.date(), chatroomname)
         self._update_user_stat(ts.date())
 
+    def send_msg(self, json_dict):
+        if not json_dict:
+            return
+        self.logger.info(json_dict)
+
+        msg_type = json_dict.get('type')
+        chatroomname = json_dict.get('chatroomname')
+        content = json_dict.get('content')
+        if msg_type != 'text' or not content:
+            return
+
+        zidou_bot = self.get_zidou_bot()
+        zidou_bot.send_text_message(chatroomname, content)
+
     def get_wechat_group_list(self, chatroom_member_info_dict):
         # TODO: cache for 1 min
         zidou_bot = self.get_zidou_bot()
