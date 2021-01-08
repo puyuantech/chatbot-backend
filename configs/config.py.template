@@ -35,10 +35,16 @@ WX = {
 THIRD_SETTING = {
     "prism_host": "",
     "zidou": {
-        "url": "",
-        "secret": "",
-        "phone": "",
-        "bot_id": "" 
+        "phone0": {
+            "url": "",
+            "secret": "",
+            "bot_id": "" 
+        },
+        "phone1": {
+            "url": "",
+            "secret": "",
+            "bot_id": "" 
+        }
     },
     "rsvp": {
         "url": "",

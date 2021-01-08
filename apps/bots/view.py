@@ -91,10 +91,11 @@ def _set_wechat_group_bot_config():
     bot_id = request.json.get('bot_id')
     share_token = request.json.get('share_token')
     stage = request.json.get('stage')
+    be_at = request.json.get('be_at')
     if not wechat_group_id or not bot_id or not share_token:
         raise VerifyError('缺少必要参数！')
 
-    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token, stage)
+    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token, stage, be_at)
     return SUCCESS_RSP()
 
 
@@ -223,7 +224,11 @@ def _wechat_chatroom_msg_callback():
     """微信群成员聊天记录及回复"""
     self_logic = ChatbotLogic(current_app.logger)
 
-    self_logic.wechat_chatroom_msg_callback(request.json, current_app.chatroom_member_info_dict)
+    self_logic.wechat_chatroom_msg_callback(
+        request.json, 
+        current_app.chatroom_member_info_dict,
+        current_app.chatroom_zidou_account_dict
+    )
     return SUCCESS_RSP()
 
 
@@ -231,18 +236,21 @@ def _wechat_chatroom_msg_callback():
 def _send_msg():
     """微信群成员聊天记录及回复"""
     self_logic = ChatbotLogic(current_app.logger)
-    self_logic.send_msg(request.json)
+    self_logic.send_msg(request.json, current_app.chatroom_zidou_account_dict)
     return SUCCESS_RSP()
 
 
 @api.route("/api/v1/chatbot/wechat_group/list", methods=["GET"])
-@view_login_required
+# @view_login_required
 def _get_wechat_group_list():
     """查询微信群列表"""
     self_logic = ChatbotLogic(current_app.logger)
 
     # TODO: 分页
-    data = self_logic.get_wechat_group_list(current_app.chatroom_member_info_dict)
+    data = self_logic.get_wechat_group_list(
+        current_app.chatroom_member_info_dict,
+        current_app.chatroom_zidou_account_dict
+    )
     return SUCCESS_RSP(data)
 
 

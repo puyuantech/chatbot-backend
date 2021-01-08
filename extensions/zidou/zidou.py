@@ -148,7 +148,7 @@ class ZiDou(object):
 
         return member_info_dict
 
-    def get_chatroom_list(self, page_id=1):
+    def get_chatroom_list(self, page_id=1, is_child=False):
         '''
         查询群列表
         '''
@@ -159,6 +159,9 @@ class ZiDou(object):
             'page': page_id,
             'pagesize': pagesize
         }
+        if is_child:
+            params['level'] = 1
+
         req_data = self.get_request_params(func, action, params)
         resp = requests.post(self.url, json=req_data).json()
 
@@ -171,7 +174,7 @@ class ZiDou(object):
         if page_id >= resp.get('total_page', 0):
             return chatroom_list
 
-        more_chatrooms = self.get_chatroom_list(page_id + 1)
+        more_chatrooms = self.get_chatroom_list(page_id + 1, is_child)
         chatroom_list.extend(more_chatrooms)
 
         return chatroom_list
