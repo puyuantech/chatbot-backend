@@ -741,8 +741,6 @@ class ChatbotLogic:
         if not user_id:
             return
 
-        self.logger.info(f'content: {content}')
-
         uid = f'openidgroup_{username}'
         try:
             resp = rsvp_group.get_bot_response(content, uid, wechat_group_bot_config['stage'])
@@ -755,7 +753,11 @@ class ChatbotLogic:
             return
         self.logger.info(f'resp: {resp}')
         if resp.get('topic', 'fallback') != 'fallback':
-            similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(resp.get('stage', []), chatroomname)
+            similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(
+                resp.get('stage', []), 
+                chatroomname,
+                wechat_group_bot_config['be_at']
+            )
 
             if bot_reply:
                 zidou_bot.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
@@ -834,7 +836,7 @@ class ChatbotLogic:
         return result
 
     # Helper functions
-    def _parse_rsvp_response_stages(self, stages, wechat_group_id=None):
+    def _parse_rsvp_response_stages(self, stages, wechat_group_id=None, be_at=0):
         # TODO: get similarity from stages
         similarity = None
         reply = ''
@@ -894,9 +896,15 @@ class ChatbotLogic:
                             reply += c
                     if replies:
                         if clicks:
-                            reply += '\n您还可以说：\n'
+                            if be_at:
+                                reply += '\n您还可以@我之后说：\n'
+                            else:
+                                reply += '\n您还可以说：\n'
                         else:
-                            reply += '\n您可以说：\n'
+                            if be_at:
+                                reply += '\n您可以@我之后说：\n'
+                            else:
+                                reply += '\n您可以说：\n'
                         for r in replies:
                             reply += r
             if 'list' in stage:
@@ -923,17 +931,25 @@ class ChatbotLogic:
                             reply += c
                     if replies:
                         if clicks:
-                            reply += '\n您还可以说：\n'
+                            if be_at:
+                                reply += '\n您还可以@我之后说：\n'
+                            else:
+                                reply += '\n您还可以说：\n'
                         else:
-                            reply += '\n您可以说：\n'
-
+                            if be_at:
+                                reply += '\n您可以@我之后说：\n'
+                            else:
+                                reply += '\n您可以说：\n'
                         for r in replies:
                             reply += r
             if 'quickReplies' in stage:
                 quick_replies = stage['quickReplies']
                 if 'quickReplies' in quick_replies:
                     quick_replies = quick_replies['quickReplies']
-                    reply += '—————————————\n您可以说：\n'
+                    if be_at:
+                        reply += '—————————————\n您可以@我之后说：\n'
+                    else:
+                        reply += '—————————————\n您可以说：\n'
                     for quick_reply in quick_replies:
                         reply += f'{quick_reply["postback"]}\n'
 

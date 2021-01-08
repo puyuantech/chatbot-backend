@@ -241,7 +241,7 @@ def _send_msg():
 
 
 @api.route("/api/v1/chatbot/wechat_group/list", methods=["GET"])
-# @view_login_required
+@view_login_required
 def _get_wechat_group_list():
     """查询微信群列表"""
     self_logic = ChatbotLogic(current_app.logger)
