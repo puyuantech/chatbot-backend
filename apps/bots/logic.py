@@ -741,8 +741,6 @@ class ChatbotLogic:
         if not user_id:
             return
 
-        self.logger.info(f'content: {content}')
-
         uid = f'openidgroup_{username}'
         try:
             resp = rsvp_group.get_bot_response(content, uid, wechat_group_bot_config['stage'])
