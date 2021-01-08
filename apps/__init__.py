@@ -51,6 +51,7 @@ def register_logging(app):
 
 def register_wechat_group_info(app):
     app.chatroom_member_info_dict = {}
+    app.chatroom_zidou_account_dict = {}
 
 
 def create_app(**kwargs):

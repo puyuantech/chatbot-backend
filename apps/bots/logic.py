@@ -256,14 +256,16 @@ class ChatbotLogic:
             result['bot_id'] = rsvp_group_conf['bot_id']
             result['share_token'] = rsvp_group_conf['share_token']
             result['stage'] = 'release'
+            result['be_at'] = 0
         else:
             result['bot_id'] = bot_config.bot_id
             result['share_token'] = bot_config.share_token
             result['stage'] = bot_config.stage
+            result['be_at'] = bot_config.be_at
 
         return result
 
-    def set_wechat_group_bot_config(self, wechat_group_id, bot_id, share_token, stage):
+    def set_wechat_group_bot_config(self, wechat_group_id, bot_id, share_token, stage, be_at):
         bot_config = db.session.query(
             WechatGroupBotConfig
         ).filter_by(
@@ -273,18 +275,23 @@ class ChatbotLogic:
         if not stage:
             stage = 'release'
 
+        if not be_at:
+            be_at = 0
+
         if not bot_config:
             bot_config = WechatGroupBotConfig(
                 wechat_group_id = wechat_group_id,
                 bot_id = bot_id,
                 share_token = share_token,
-                stage = stage
+                stage = stage,
+                be_at = be_at
             )
             db.session.add(bot_config)
         else:
             bot_config.bot_id = bot_id
             bot_config.share_token = share_token
             bot_config.stage = stage
+            bot_config.be_at = be_at
 
         db.session.commit()
 
@@ -654,11 +661,32 @@ class ChatbotLogic:
 
         return resp
 
-    def get_zidou_bot(self):
-        zidou_conf = self.conf['zidou']
-        return ZiDou(zidou_conf['url'], zidou_conf['secret'], zidou_conf['phone'])
+    def get_zidou_bot_dict(self):
+        zidou_conf_dict = self.conf['zidou']
+        zidou_bot_dict = {}
+        for phone, zidou_conf in zidou_conf_dict.items():
+            zidou_bot_dict[phone] = ZiDou(zidou_conf['url'], zidou_conf['secret'], phone)
+        return zidou_bot_dict
 
-    def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict):
+    def get_chatroom_zidou_bot(self, chatroomname, chatroom_zidou_account_dict):
+        zidou_bot_dict = self.get_zidou_bot_dict()
+
+        if chatroomname not in chatroom_zidou_account_dict:
+            for phone, zidou_bot in zidou_bot_dict.items():
+                chatroom_list = zidou_bot.get_chatroom_list()
+                for chatroom in chatroom_list:
+                    chatroomname = chatroom.get('chatroomname')
+                    chatroom_zidou_account_dict[chatroomname] = phone
+
+        phone = chatroom_zidou_account_dict.get(chatroomname, '')
+        if not phone:
+            self.logger.error(f'Failed to send_msg, no related zidou bot for chatroomname: {chatroomname}')
+            return None
+
+        return zidou_bot_dict.get(phone, None)
+
+
+    def wechat_chatroom_msg_callback(self, json_dict, chatroom_member_info_dict, chatroom_zidou_account_dict):
         if not json_dict:
             return
         self.logger.info(json_dict)
@@ -677,16 +705,28 @@ class ChatbotLogic:
         if username == bot_username:
             return
 
-        zidou_bot = self.get_zidou_bot()
+        if msg_type != 'text' or not content:
+            return
+
+        zidou_bot = self.get_chatroom_zidou_bot(chatroomname, chatroom_zidou_account_dict)
+
         if username not in chatroom_member_info_dict.get(chatroomname, {}):
             chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
             if username not in chatroom_member_info_dict[chatroomname]:
                 return
 
-        if msg_type != 'text' or not content:
-            return
-
         wechat_group_bot_config = self.get_wechat_group_bot_config(chatroomname)
+        if wechat_group_bot_config['be_at']:
+            if not is_at:
+                return
+            bot_be_at = False
+            for be_at in be_at_list:
+                if be_at == bot_username:
+                    bot_be_at = True
+                    break
+            if not bot_be_at:
+                return
+
         rsvp_group = Rsvp(
             self.conf['rsvp']['url'],
             wechat_group_bot_config['bot_id'],
@@ -749,7 +789,7 @@ class ChatbotLogic:
         self._update_dialog_stat(user_id, ts.date(), chatroomname)
         self._update_user_stat(ts.date())
 
-    def send_msg(self, json_dict):
+    def send_msg(self, json_dict, chatroom_zidou_account_dict):
         if not json_dict:
             return
         self.logger.info(json_dict)
@@ -758,36 +798,39 @@ class ChatbotLogic:
         chatroomname = json_dict.get('chatroomname')
         content = json_dict.get('content')
         if msg_type != 'text' or not content:
+            self.logger.warning(f'Failed to send_msg, msg_type: {msg_type}, content: {content}')
             return
 
-        zidou_bot = self.get_zidou_bot()
+        zidou_bot = self.get_chatroom_zidou_bot(chatroomname, chatroom_zidou_account_dict)
         zidou_bot.send_text_message(chatroomname, content)
 
-    def get_wechat_group_list(self, chatroom_member_info_dict):
+    def get_wechat_group_list(self, chatroom_member_info_dict, chatroom_zidou_account_dict):
         # TODO: cache for 1 min
-        zidou_bot = self.get_zidou_bot()
-        chatroom_list = zidou_bot.get_chatroom_list()
+        zidou_bot_dict = self.get_zidou_bot_dict()
         result = []
-        for chatroom in chatroom_list:
-            chatroomname = chatroom.get('chatroomname')
-            roomowner = chatroom.get('roomowner')
-            owner_nick_name = None
-            owner_avatar_url = None
-            if roomowner not in chatroom_member_info_dict.get(chatroomname, {}):
-                chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
+        for phone, zidou_bot in zidou_bot_dict.items():
+            chatroom_list = zidou_bot.get_chatroom_list()
+            for chatroom in chatroom_list:
+                chatroomname = chatroom.get('chatroomname')
+                roomowner = chatroom.get('roomowner')
+                owner_nick_name = None
+                owner_avatar_url = None
+                chatroom_zidou_account_dict[chatroomname] = phone
+                if roomowner not in chatroom_member_info_dict.get(chatroomname, {}):
+                    chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
 
-            chatroom_member_info = chatroom_member_info_dict.get(chatroomname, {})
-            owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
-            owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
+                chatroom_member_info = chatroom_member_info_dict.get(chatroomname, {})
+                owner_nick_name = chatroom_member_info.get(roomowner, {}).get('nickname')
+                owner_avatar_url = chatroom_member_info.get(roomowner, {}).get('avatar_url')
 
-            result.append({
-                'nick_name': chatroom.get('nickname'),
-                'id': chatroomname,
-                'avatar_url': chatroom.get('avatar_url'),
-                'member_count': chatroom.get('member_count'),
-                'owner_nick_name': owner_nick_name,
-                'owner_avatar_url': owner_avatar_url
-            })
+                result.append({
+                    'nick_name': chatroom.get('nickname'),
+                    'id': chatroomname,
+                    'avatar_url': chatroom.get('avatar_url'),
+                    'member_count': chatroom.get('member_count'),
+                    'owner_nick_name': owner_nick_name,
+                    'owner_avatar_url': owner_avatar_url
+                })
         return result
 
     # Helper functions
