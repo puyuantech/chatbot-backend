@@ -38,12 +38,14 @@ THIRD_SETTING = {
         "phone0": {
             "url": "",
             "secret": "",
-            "bot_id": "" 
+            "bot_id": "",
+            "bot_nickname": ""
         },
         "phone1": {
             "url": "",
             "secret": "",
-            "bot_id": "" 
+            "bot_id": "", 
+            "bot_nickname": ""
         }
     },
     "rsvp": {

@@ -7,10 +7,11 @@ import requests
 
 class ZiDou(object):
 
-    def __init__(self, url, secret, phone):
+    def __init__(self, url, secret, phone, nickname):
         self.url = url
         self.secret = secret
         self.phone = phone
+        self.nickname = nickname
         self.chatroom_member_info = {}
 
     def get_nonce(self):
