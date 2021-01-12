@@ -727,6 +727,9 @@ class ChatbotLogic:
             if not bot_be_at:
                 return
 
+            bot_nickname = chatroom_member_info_dict[chatroomname].get(bot_username, {}).get('nickname', '')
+            content = content.replace(f'@{bot_nickname}\u2005', '')
+
         rsvp_group = Rsvp(
             self.conf['rsvp']['url'],
             wechat_group_bot_config['bot_id'],
