@@ -730,6 +730,7 @@ class ChatbotLogic:
 
             bot_nickname = zidou_bot.nickname
             content = content.replace(f'@{bot_nickname}\u2005', '')
+            content = content.replace(f'@{bot_nickname} ', '')
 
         rsvp_group = Rsvp(
             self.conf['rsvp']['url'],
