@@ -665,7 +665,8 @@ class ChatbotLogic:
         zidou_conf_dict = self.conf['zidou']
         zidou_bot_dict = {}
         for phone, zidou_conf in zidou_conf_dict.items():
-            zidou_bot_dict[phone] = ZiDou(zidou_conf['url'], zidou_conf['secret'], phone)
+            zidou_bot_dict[phone] = ZiDou(zidou_conf['url'], zidou_conf['secret'], phone,
+                zidou_conf['bot_nickname'])
         return zidou_bot_dict
 
     def get_chatroom_zidou_bot(self, chatroomname, chatroom_zidou_account_dict):
@@ -727,7 +728,7 @@ class ChatbotLogic:
             if not bot_be_at:
                 return
 
-            bot_nickname = chatroom_member_info_dict[chatroomname].get(bot_username, {}).get('nickname', '')
+            bot_nickname = zidou_bot.nickname
             content = content.replace(f'@{bot_nickname}\u2005', '')
 
         rsvp_group = Rsvp(
