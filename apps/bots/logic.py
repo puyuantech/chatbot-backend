@@ -713,26 +713,31 @@ class ChatbotLogic:
         if username not in chatroom_member_info_dict.get(chatroomname, {}):
             chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
             if username not in chatroom_member_info_dict[chatroomname]:
+                self.logger.warning(f'Failed processing msg {msg_id}: user {username} not found in {chatroomname}!')
                 return
 
         wechat_group_bot_config = self.get_wechat_group_bot_config(chatroomname)
         if wechat_group_bot_config['be_at']:
-            if not is_at:
-                return
-            bot_be_at = False
-            for be_at in be_at_list:
-                if be_at == bot_username:
-                    bot_be_at = True
-                    break
+            # if not is_at:
+            #     self.logger.info(f'Quit procssing msg {msg_id}: bot is not @ed!')
+            #     return
+            # bot_be_at = False
+            # for be_at in be_at_list:
+            #     if be_at == bot_username:
+            #         bot_be_at = True
+            #         break
+            bot_nickname = zidou_bot.nickname
+            bot_be_at = f'@{bot_nickname}' in content
             if not bot_be_at:
+                self.logger.info(f'Quit procssing msg {msg_id}: bot has not been @!')
                 return
 
-            bot_nickname = zidou_bot.nickname
             content = content.replace(f'@{bot_nickname}\u2005', '')
             content = content.replace(f'@{bot_nickname} ', '')
             if content.endswith(f'@{bot_nickname}'):
                 content = content[:-len(f'@{bot_nickname}')]
 
+        self.logger.info(f'Start requesting RSVP for msg {msg_id}, content: {content}!')
         rsvp_group = Rsvp(
             self.conf['rsvp']['url'],
             wechat_group_bot_config['bot_id'],
@@ -745,6 +750,7 @@ class ChatbotLogic:
         avatar_url = chatroom_member_info_dict[chatroomname][username]['avatar_url']
         user_id = self._get_user(ts, wechat_user_name=username, nick_name=nick_name, avatar_url=avatar_url)
         if not user_id:
+            self.logger.warning(f'Failed processing msg {msg_id}: cannot get user_id for user {username}!')
             return
 
         uid = f'openidgroup_{username}'
@@ -756,6 +762,7 @@ class ChatbotLogic:
             resp = None
 
         if not resp:
+            self.logger.warning(f'Failed to get rsvp response for msg {msg_id}, content: {content}!')
             return
         self.logger.info(f'resp: {resp}')
         if resp.get('topic', 'fallback') != 'fallback':
@@ -767,6 +774,8 @@ class ChatbotLogic:
 
             if bot_reply:
                 zidou_bot.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
+            else:
+                self.logger.warning(f'Failed to get bot reply for {msg_id}, content: {content}!')
 
             if start_miniprogram:
                 miniprogram_id_and_ts = zidou_bot.get_miniprogram_id_and_ts('棱小镜')
