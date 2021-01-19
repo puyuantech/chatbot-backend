@@ -16,15 +16,17 @@ class UrlManager:
         '''
         permanent: Expires in three months if false else Never expires
         '''
-        request_url = cls.url.format(quote(long_url))
-        if permanent:
-            request_url += '&expireDate=2040-01-01'
 
-        response = requests.get(request_url).json()
-        if response['code'] == '1':
-            cls.logger.error(f"[generate_short_url] (err_msg){response['err']} (long_url){long_url} (short_url){response['url']}")
-            return
+        return long_url
+        # request_url = cls.url.format(quote(long_url))
+        # if permanent:
+        #     request_url += '&expireDate=2040-01-01'
 
-        cls.logger.info(f"[generate_short_url] (long_url){long_url} (short_url){response['url']}")
-        return response['url']
+        # response = requests.get(request_url).json()
+        # if response['code'] == '1':
+        #     cls.logger.error(f"[generate_short_url] (err_msg){response['err']} (long_url){long_url} (short_url){response['url']}")
+        #     return
+
+        # cls.logger.info(f"[generate_short_url] (long_url){long_url} (short_url){response['url']}")
+        # return response['url']
 
