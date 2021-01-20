@@ -765,7 +765,7 @@ class ChatbotLogic:
             self.logger.warning(f'Failed to get rsvp response for msg {msg_id}, content: {content}')
             return
         self.logger.info(f'resp: {resp}')
-        if resp.get('topic', 'fallback') != 'fallback':
+        if resp.get('topic', 'fallback') != 'fallback' or wechat_group_bot_config['be_at']:
             similarity, bot_reply, start_miniprogram = self._parse_rsvp_response_stages(
                 resp.get('stage', []), 
                 chatroomname,
