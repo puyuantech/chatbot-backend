@@ -9,24 +9,25 @@ from urllib.parse import quote
 class UrlManager:
 
     logger = logging.getLogger('UrlManager')
-    url = 'http://api.3w.cn/api.htm?format=json&domain=1&url={}&key=' + settings['SHORT_URL_KEY']
+    request_url = 'https://ljxj.top/yourls-api.php'
 
     @classmethod
     def generate_short_url(cls, long_url, permanent=False):
         '''
         permanent: Expires in three months if false else Never expires
         '''
+        params = {
+            'url': long_url,
+            'action': 'shorturl',
+            'format': 'json',
+            'signature': settings['SHORT_URL_KEY']
+        }
 
-        return long_url
-        # request_url = cls.url.format(quote(long_url))
-        # if permanent:
-        #     request_url += '&expireDate=2040-01-01'
+        response = requests.get(cls.request_url, params=params).json()
+        if response['statusCode'] != 200:
+            cls.logger.error(f"[generate_short_url] (statusCode){response['statusCode']} "
+                f"(status){response['status']} (message){response['message']}")
+            return None
 
-        # response = requests.get(request_url).json()
-        # if response['code'] == '1':
-        #     cls.logger.error(f"[generate_short_url] (err_msg){response['err']} (long_url){long_url} (short_url){response['url']}")
-        #     return
-
-        # cls.logger.info(f"[generate_short_url] (long_url){long_url} (short_url){response['url']}")
-        # return response['url']
-
+        cls.logger.info(f"[generate_short_url] (long_url){long_url} (short_url){response['shorturl']}")
+        return response['shorturl']
