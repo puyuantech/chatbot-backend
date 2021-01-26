@@ -114,52 +114,22 @@ class FundRecommendByIndexAPI(ApiViewHandler):
         return fund_info
 
 
-class FundRecommendByXirrAPI(ApiViewHandler):
-
-    @params_required(*['user_id', 'init_bench', 'amt_bench', 'tot_mv', 'periods', 'risk_level'])
-    def post(self):
-        fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend_xirr(
-            fund_ids, self.input.user_id, self.input.risk_level, self.input.init_bench,
-            self.input.amt_bench, self.input.tot_mv, self.input.periods,
-        )
-        return fund_info
-
-
-class FundRecommendByRiskIncomeAPI(ApiViewHandler):
-
-    @params_required(*['user_id', 'min_income', 'max_income', 'min_risk', 'max_risk', 'risk_level'])
-    def post(self):
-        fund_ids = FundPool.get_fund_ids('basic')
-        fund_info = Robo.get_fund_by_recommend_risk_income(
-            fund_ids, self.input.user_id, self.input.risk_level, self.input.min_income / 100,
-            self.input.max_income / 100, self.input.min_risk / 100, self.input.max_risk / 100,
-        )
-        return fund_info
-
-
 class FundRecommendByBenchmarkAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'benchmark', 'comparison', 'digital'])
     def post(self):
         fund_ids = FundPool.get_fund_ids('basic')
 
-        min_income = max_income = min_risk = max_risk = None
+        # TODO: delete convert
+        benchmark = self.input.benchmark
         digital = self.input.digital / 100
-        if self.input.benchmark == '年化收益':
-            if self.input.comparison in ('大于', '超过', '达到', '不小于', '高于'):
-                min_income = digital
-            else:
-                max_income = digital
-        else:
-            if self.input.comparison in ('大于', '超过', '达到', '不小于', '高于'):
-                min_risk = digital
-            else:
-                max_risk = digital
+        if benchmark == '年化收益':
+            benchmark = '成立至今年化收益率'
 
-        fund_info = Robo.get_fund_by_recommend_risk_income(
-            fund_ids, self.input.user_id, None, min_income, max_income, min_risk, max_risk,
-        )
+        limits = [
+            [benchmark, digital, self.input.comparison in ('大于', '超过', '达到', '不小于', '高于')],
+        ]
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, None, limits=limits)
         return fund_info
 
 
