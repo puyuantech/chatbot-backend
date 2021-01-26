@@ -64,7 +64,7 @@ class Robo:
         return cls._request_post(endpoint, data)
 
     @classmethod
-    def get_fund_by_recommend(cls, fund_ids, user_id, risk_level, ordering=None, filters=None, contains=None) -> dict:
+    def get_fund_by_recommend(cls, fund_ids, user_id, risk_level, ordering=None, filters=None, contains=None, limits=None) -> dict:
         endpoint = '/api/v1/robo/fund/recommend'
         data = {
             'fund_ids': fund_ids,
@@ -73,6 +73,7 @@ class Robo:
             'ordering': ordering,
             'filters': filters,
             'contains': contains,
+            'limits': limits,
         }
         return cls._request_post(endpoint, data)
 
