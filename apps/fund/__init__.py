@@ -7,9 +7,8 @@ from .view_managers import FundManagerAPI, FundManagersAPI, FundManagerInfosAPI
 from .view_pools import FundPoolAPI, FundPoolsAPI
 from .view_recommend import (FundRecommendMenuAPI, FundRecommendBySectorAPI, FundRecommendByAbilityAPI,
                              FundRecommendByFundTypeAPI, FundRecommendByPreferenceAPI, FundRecommendByIndexAPI,
-                             FundRecommendByXirrAPI, FundRecommendByRiskIncomeAPI, FundRecommendByBenchmarkAPI,
-                             FundRecommendByHoldStockAPI, FundRecommendByHoldBondAPI, FundRecommendByETFAPI,
-                             FundRecommendByKeyAPI)
+                             FundRecommendByBenchmarkAPI, FundRecommendByHoldStockAPI, FundRecommendByHoldBondAPI,
+                             FundRecommendByETFAPI, FundRecommendByKeyAPI)
 from .view_sectors import SectorNameAPI, SectorInfoAPI, SectorInfosAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__, url_prefix='/api/v1/fund')
@@ -32,8 +31,6 @@ api.add_resource(FundRecommendByAbilityAPI, '/recommend/ability')
 api.add_resource(FundRecommendByFundTypeAPI, '/recommend/fund_type')
 api.add_resource(FundRecommendByPreferenceAPI, '/recommend/preference')
 api.add_resource(FundRecommendByIndexAPI, '/recommend/index')
-api.add_resource(FundRecommendByXirrAPI, '/recommend/xirr')
-api.add_resource(FundRecommendByRiskIncomeAPI, '/recommend/risk_income')
 api.add_resource(FundRecommendByBenchmarkAPI, '/recommend/benchmark')
 api.add_resource(FundRecommendByHoldStockAPI, '/recommend/hold_stock')
 api.add_resource(FundRecommendByHoldBondAPI, '/recommend/hold_bond')

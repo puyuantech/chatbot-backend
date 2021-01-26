@@ -78,34 +78,6 @@ class Robo:
         return cls._request_post(endpoint, data)
 
     @classmethod
-    def get_fund_by_recommend_xirr(cls, fund_ids, user_id, risk_level, init_bench, amt_bench, tot_mv, periods) -> dict:
-        endpoint = '/api/v1/robo/fund/recommend/xirr'
-        data = {
-            'fund_ids': fund_ids,
-            'user_id': user_id,
-            'risk_level': risk_level,
-            'init_bench': init_bench,
-            'amt_bench': amt_bench,
-            'tot_mv': tot_mv,
-            'periods': periods,
-        }
-        return cls._request_post(endpoint, data)
-
-    @classmethod
-    def get_fund_by_recommend_risk_income(cls, fund_ids, user_id, risk_level, min_income, max_income, min_risk, max_risk) -> dict:
-        endpoint = '/api/v1/robo/fund/recommend/risk_income'
-        data = {
-            'fund_ids': fund_ids,
-            'user_id': user_id,
-            'risk_level': risk_level,
-            'min_income': min_income,
-            'max_income': max_income,
-            'min_risk': min_risk,
-            'max_risk': max_risk,
-        }
-        return cls._request_post(endpoint, data)
-
-    @classmethod
     def get_fund_by_recommend_hold_stock(cls, fund_ids, user_id, stock_name) -> dict:
         endpoint = '/api/v1/robo/fund/recommend/hold_stock'
         data = {
