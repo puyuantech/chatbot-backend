@@ -29,9 +29,10 @@ class FundRecommendBySectorAPI(ApiViewHandler):
 
     @params_required(*['user_id', 'sector_name'])
     def post(self):
+        ordering = '-近一周收益率'
         risk_level = get_match_risk_level(self.input.match, self.input.risk_level)
         fund_ids = SectorInfo.get_funds_by_sector_name(self.input.sector_name)
-        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level)
+        fund_info = Robo.get_fund_by_recommend(fund_ids, self.input.user_id, risk_level, ordering=ordering)
         return fund_info
 
 
