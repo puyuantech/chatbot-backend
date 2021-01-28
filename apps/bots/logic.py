@@ -806,20 +806,70 @@ class ChatbotLogic:
         self._update_dialog_stat(user_id, ts.date(), chatroomname)
         self._update_user_stat(ts.date())
 
-    def send_msg(self, json_dict, chatroom_zidou_account_dict):
-        if not json_dict:
+    def send_text_msg(self, param_dict, chatroom_zidou_account_dict):
+        if not param_dict:
+            self.logger.warning(f'No json params found!')
             return
-        self.logger.info(json_dict)
-
-        msg_type = json_dict.get('type')
-        chatroomname = json_dict.get('chatroomname')
-        content = json_dict.get('content')
-        if msg_type != 'text' or not content:
-            self.logger.warning(f'Failed to send_msg, msg_type: {msg_type}, content: {content}')
+        self.logger.info(param_dict)
+        chatroomname = param_dict.get('chatroomname')
+        content = param_dict.get('content')
+        if not content:
+            self.logger.warning(f'Failed to send msg with empty content!')
             return
 
         zidou_bot = self.get_chatroom_zidou_bot(chatroomname, chatroom_zidou_account_dict)
-        zidou_bot.send_text_message(chatroomname, content)
+        resp = zidou_bot.send_text_message(chatroomname, content)
+        self.logger.info(resp.json())
+
+    def send_link_msg(self, param_dict, chatroom_zidou_account_dict):
+        if not param_dict:
+            self.logger.warning(f'No json params found!')
+            return
+        self.logger.info(param_dict)
+        chatroomname = param_dict.get('chatroomname')
+        content = param_dict.get('content')
+        if not content:
+            self.logger.warning(f'Failed to send msg with empty content!')
+            return
+
+        title = content.get('title', '')
+        source_url = content.get('source_url', '')
+        description = content.get('description', '')
+        image_url = content.get('image_url', '')
+        if not source_url:
+            self.logger.warning(f'Failed to send link msg with empty source url! (param_dict): {param_dict}')
+            return
+
+        zidou_bot = self.get_chatroom_zidou_bot(chatroomname, chatroom_zidou_account_dict)
+        resp = zidou_bot.send_link_message(
+            chatroom_name = chatroomname, 
+            source_url=source_url,
+            title=title,
+            description=description,
+            image_url=image_url
+        )
+        self.logger.info(resp.json())
+
+    def send_pic_msg(self, param_dict, req_files, chatroom_zidou_account_dict):
+        if not param_dict:
+            self.logger.warning(f'No json params found!')
+            return
+        self.logger.info(param_dict)
+        chatroomname = param_dict.get('chatroomname')
+
+        file_obj = req_files.get('file')
+        if not file_obj:
+            self.logger.warning(f'Failed to send pic with empty files! (param_dict): {param_dict}')
+            return
+
+        zidou_bot = self.get_chatroom_zidou_bot(chatroomname, chatroom_zidou_account_dict)
+        pic_id = zidou_bot.upload_pic_material(file_obj)
+        if not pic_id:
+            self.logger.warning(f'Failed to upload pic material!')
+            return
+
+        resp = zidou_bot.send_pic_message(chatroomname, pic_id)
+        self.logger.info(resp.json())
 
     def get_wechat_group_list(self, chatroom_member_info_dict, chatroom_zidou_account_dict):
         # TODO: cache for 1 min
