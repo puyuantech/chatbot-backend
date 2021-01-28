@@ -193,7 +193,7 @@ class ZiDou(object):
                     'material_id': material_id
                 }
             ],
-            'chatroom_list': [chatroom_name]
+            'chatroom_list': [chatroom_name] if type(chatroom_name) is str else chatroom_name
         }
         req_data = self.get_request_params(func, action, params)
 
@@ -213,27 +213,71 @@ class ZiDou(object):
                     'content': content
                 }
             ],
-            'chatroom_list': [chatroom_name]
+            'chatroom_list': [chatroom_name] if type(chatroom_name) is str else chatroom_name
         }
         req_data = self.get_request_params(func, action, params)
 
         resp = requests.post(self.url, json=req_data)
         return resp
 
-    def send_link_message(self, chatroom_name, title, source_url):
+    def send_link_message(self, chatroom_name, source_url, title='', description='', image_url=''):
         '''
         发送链接消息
+        '''
+        func = 'send_msg'
+        action = 'set'
+        if not title and not description:
+            title = source_url
+        params = {
+            'msg': [
+                {
+                    'type': 'link',
+                    'title': title,
+                    'source_url': source_url,
+                    'des': description,
+                    'img_url': image_url
+                }
+            ],
+            'chatroom_list': [chatroom_name] if type(chatroom_name) is str else chatroom_name
+        }
+        req_data = self.get_request_params(func, action, params)
+
+        resp = requests.post(self.url, json=req_data)
+        return resp
+
+    def upload_pic_material(self, filestream):
+        '''
+        上传图片素材
+        '''
+        func = 'material'
+        action = 'set'
+        params = {}
+        req_data = self.get_request_params(func, action, params)
+
+        files = {
+            'file': ('image.png', filestream)
+        }
+        resp = requests.post(self.url, data=req_data, files=files)
+        resp_j = resp.json()
+        print(resp_j)
+        if resp_j and resp_j.get('err_code') == 0:
+            return resp_j.get('content', {}).get('pic_id', None)
+        return None
+
+    def send_pic_message(self, chatroom_name, pic_id):
+        '''
+        发送图片消息
         '''
         func = 'send_msg'
         action = 'set'
         params = {
             'msg': [
                 {
-                    'title': title,
-                    'source_url': source_url
+                    'type': 'pic',
+                    'pic_id': pic_id
                 }
             ],
-            'chatroom_list': [chatroom_name]
+            'chatroom_list': [chatroom_name] if type(chatroom_name) is str else chatroom_name
         }
         req_data = self.get_request_params(func, action, params)
 

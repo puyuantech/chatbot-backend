@@ -176,11 +176,27 @@ def _wechat_chatroom_msg_callback():
     return SUCCESS_RSP()
 
 
-@api.route("/api/v1/chatbot/wechat_group/send_msg", methods=["POST"])
-def _send_msg():
-    """微信群成员聊天记录及回复"""
+@api.route("/api/v1/chatbot/wechat_group/send_text_msg", methods=["POST"])
+def _send_text_msg():
+    """发送文本消息"""
     self_logic = ChatbotLogic(current_app.logger)
-    self_logic.send_msg(request.json, current_app.chatroom_zidou_account_dict)
+    self_logic.send_text_msg(request.json, current_app.chatroom_zidou_account_dict)
+    return SUCCESS_RSP()
+
+
+@api.route("/api/v1/chatbot/wechat_group/send_link_msg", methods=["POST"])
+def _send_link_msg():
+    """发送链接消息"""
+    self_logic = ChatbotLogic(current_app.logger)
+    self_logic.send_link_msg(request.json, current_app.chatroom_zidou_account_dict)
+    return SUCCESS_RSP()
+
+
+@api.route("/api/v1/chatbot/wechat_group/send_pic_msg", methods=["POST"])
+def _send_pic_msg():
+    """发送图片消息"""
+    self_logic = ChatbotLogic(current_app.logger)
+    self_logic.send_pic_msg(request.form, request.files, current_app.chatroom_zidou_account_dict)
     return SUCCESS_RSP()
 
 
