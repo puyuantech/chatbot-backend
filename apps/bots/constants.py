@@ -1,4 +1,6 @@
+
 from bases.base_enmu import EnumBase
+
 
 EMPTY_VALUE = {None, '', 'null'}
 MARKET_INDEX_IDS = {
@@ -17,6 +19,8 @@ class Operation(EnumBase):
     set = 'set'
     update = 'update'
 
+
 class TagType(EnumBase):
     expertise = 'expertise'
     risk_tolerance = 'risk_tolerance'
+
