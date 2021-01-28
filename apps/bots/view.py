@@ -1,7 +1,11 @@
-from flask import jsonify, request, current_app
-from utils.helper import RedPrint, ERROR_RSP, SUCCESS_RSP
-from utils.decorators import view_login_required
+
+from flask import jsonify, current_app, request
+
 from bases.exceptions import VerifyError
+from models import WechatGroupBotConfig
+from utils.decorators import view_login_required
+from utils.helper import RedPrint, ERROR_RSP, SUCCESS_RSP
+
 from .logic import ChatbotLogic
 
 
@@ -85,8 +89,6 @@ def _get_wechat_group_bot_config():
 @view_login_required
 def _set_wechat_group_bot_config():
     """设置微信群对话机器人配置"""
-    self_logic = ChatbotLogic(current_app.logger)
-
     wechat_group_id = request.json.get('wechat_group_id')
     bot_id = request.json.get('bot_id')
     share_token = request.json.get('share_token')
@@ -95,66 +97,8 @@ def _set_wechat_group_bot_config():
     if not wechat_group_id or not bot_id or not share_token:
         raise VerifyError('缺少必要参数！')
 
-    self_logic.set_wechat_group_bot_config(wechat_group_id, bot_id, share_token, stage, be_at)
+    WechatGroupBotConfig.update_bot_config(wechat_group_id, bot_id, share_token, stage, be_at)
     return SUCCESS_RSP()
-
-
-@api.route("/api/v1/chatbot/statistics/user_count", methods=["GET"])
-@view_login_required
-def _get_user_count():
-    """查询用户量统计（总量+日活）"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
-    wechat_group_id = request.args.get('wechat_group_id')
-    data = self_logic.get_user_count(start_time, end_time, wechat_group_id)
-    return SUCCESS_RSP(data)
-
-
-@api.route("/api/v1/chatbot/statistics/dialog_count", methods=["GET"])
-@view_login_required
-def _get_dialog_count():
-    """查询对话量统计"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    user_id = request.args.get('user_id')
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
-    data = self_logic.get_dialog_count(user_id, start_time, end_time)
-    return SUCCESS_RSP(data)
-
-
-@api.route("/api/v1/chatbot/statistics/product_view_count", methods=["GET"])
-@view_login_required
-def _get_product_view_count():
-    """获取产品浏览量排行"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    user_id = request.args.get('user_id')
-    wechat_group_id = request.args.get('wechat_group_id')
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
-    top_n = request.args.get('top_n')
-    if top_n:
-        top_n = int(top_n)
-        if top_n <= 0:
-            raise VerifyError('top_n参数不合法！')
-    data = self_logic.get_product_view_count(user_id, wechat_group_id, start_time, end_time, top_n)
-    return SUCCESS_RSP(data)
-
-
-@api.route("/api/v1/chatbot/statistics/product_daily_view", methods=["GET"])
-@view_login_required
-def _get_product_daily_view():
-    """查询产品每日浏览量统计"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    user_id = request.args.get('user_id')
-    start_time = request.args.get('start_time')
-    end_time = request.args.get('end_time')
-    data = self_logic.get_product_daily_view(user_id, start_time, end_time)
-    return SUCCESS_RSP(data)
 
 
 @api.route("/api/v1/chatbot/user/dialog", methods=["POST"])
@@ -225,7 +169,7 @@ def _wechat_chatroom_msg_callback():
     self_logic = ChatbotLogic(current_app.logger)
 
     self_logic.wechat_chatroom_msg_callback(
-        request.json, 
+        request.json,
         current_app.chatroom_member_info_dict,
         current_app.chatroom_zidou_account_dict
     )
@@ -254,36 +198,6 @@ def _get_wechat_group_list():
     return SUCCESS_RSP(data)
 
 
-@api.route("/api/v1/chatbot/statistics/user_expertise", methods=["GET"])
-@view_login_required
-def _get_user_expertise():
-    """查询用户专业度分布统计"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    data = self_logic.get_user_expertise()
-    return SUCCESS_RSP(data)
-
-
-@api.route("/api/v1/chatbot/statistics/user_risk_tolerance", methods=["GET"])
-@view_login_required
-def _get_user_risk_tolerance():
-    """查询用户风险承受能力分布统计"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    data = self_logic.get_user_risk_tolerance()
-    return SUCCESS_RSP(data)
-
-
-@api.route("/api/v1/chatbot/statistics/user_dialog_count", methods=["GET"])
-@view_login_required
-def _get_user_dialog_count():
-    """查询用户对话量分布统计"""
-    self_logic = ChatbotLogic(current_app.logger)
-
-    data = self_logic.get_user_dialog_count()
-    return SUCCESS_RSP(data)
-
-
 @api.route("/api/v1/chatbot/cognai/dialog", methods=["GET"])
 def _get_cognai_dialog():
     """查询用户对话量分布统计"""
@@ -293,3 +207,4 @@ def _get_cognai_dialog():
     rsp = self_logic.get_cognai_dialog(q)
 
     return jsonify(rsp), 200
+
