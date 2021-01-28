@@ -1,14 +1,15 @@
-import json
-import time
-import random
+
 import hashlib
+import json
+import random
 import requests
+import time
 
-from urllib import parse
 from extensions.segmentation import Segmentation
+from urllib import parse
 
 
-class Rsvp(object):
+class Rsvp:
 
     def __init__(self, url, bot_id, share_token, logger=None):
         self.chat_url = parse.urljoin(url, 'sandbox/chat')
@@ -36,8 +37,8 @@ class Rsvp(object):
         json_dict = dict()
         json_dict.update(data)
         json_str = json.dumps(json_dict, sort_keys=True)
-        m = hashlib.md5() 
-        m.update(json_str.encode()) 
+        m = hashlib.md5()
+        m.update(json_str.encode())
         return m.hexdigest()
 
     def get_request_params(self, query, uid, stage):
@@ -49,7 +50,7 @@ class Rsvp(object):
             'nonce': self.get_nonce(),
             'timestamp': int(time.time())
         }
-        sign = self.get_sign(data) 
+        sign = self.get_sign(data)
         data.update({'sign': sign})
 
         # if self.logger:
@@ -71,7 +72,7 @@ class Rsvp(object):
         resp = resp.json()
 
         # if not final:
-        #     if (not resp or resp.get('status', 1) != 0 or not resp.get('stage') 
+        #     if (not resp or resp.get('status', 1) != 0 or not resp.get('stage')
         #             or resp.get('topic', 'fallback') == 'fallback'):
         #         segmentation = Segmentation()
         #         candidates = segmentation.match(query)

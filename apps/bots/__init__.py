@@ -6,11 +6,23 @@ from utils.helper import ERROR_RSP
 from .view import api as view_api
 from .view_dialogs import DialogsByTagAPI
 from .view_prism import api as prism_api
+from .view_statistics import (ExpertiseDistributionAPI, RiskToleranceDistributionAPI, DialogCountDistributionAPI,
+                              ProductViewCountAPI, UserCountAPI, DialogCountAPI, ProductDailyViewAPI)
 from .view_tags import TagsAPI, TopTagsAPI, TagAPI
 
 blu = Blueprint('{}_blu'.format(__name__), __name__)
 api = Api(blu)
+
 api.add_resource(DialogsByTagAPI, '/api/v1/chatbot/dialogs/tag')
+
+api.add_resource(ExpertiseDistributionAPI, '/api/v1/chatbot/statistics/user_expertise')
+api.add_resource(RiskToleranceDistributionAPI, '/api/v1/chatbot/statistics/user_risk_tolerance')
+api.add_resource(DialogCountDistributionAPI, '/api/v1/chatbot/statistics/user_dialog_count')
+api.add_resource(ProductViewCountAPI, '/api/v1/chatbot/statistics/product_view_count')
+api.add_resource(UserCountAPI, '/api/v1/chatbot/statistics/user_count')
+api.add_resource(DialogCountAPI, '/api/v1/chatbot/statistics/dialog_count')
+api.add_resource(ProductDailyViewAPI, '/api/v1/chatbot/statistics/product_daily_view')
+
 api.add_resource(TagsAPI, '/api/v1/chatbot/tags')
 api.add_resource(TopTagsAPI, '/api/v1/chatbot/tags/top')
 api.add_resource(TagAPI, '/api/v1/chatbot/tag')

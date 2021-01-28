@@ -3,7 +3,6 @@ import logging
 import requests
 
 from bases.globals import settings
-from urllib.parse import quote
 
 
 class UrlManager:
