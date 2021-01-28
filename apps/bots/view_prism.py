@@ -1,10 +1,13 @@
+
 import re
 import requests
 import traceback
-from flask import request, jsonify, current_app
-from utils.helper import RedPrint, ShareTokenAuth
-from bases.globals import settings
+
+from flask import current_app, request, jsonify
+
 from bases.exceptions import LogicError
+from bases.globals import settings
+from utils.helper import RedPrint, ShareTokenAuth
 
 api = RedPrint('api/v1/chatbot')
 
