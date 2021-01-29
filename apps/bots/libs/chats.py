@@ -64,10 +64,7 @@ def parse_bot_response(response, be_at, chatroomname, content, username, msg_id,
     return similarity, bot_reply
 
 
-def replace_content(content, bot_nickname, msg_id):
-    if f'@{bot_nickname}' not in content:
-        raise LogicError(f'Quit procssing msg {msg_id}: bot has not been @')
-
+def replace_content(content, bot_nickname):
     content = content.replace(f'@{bot_nickname}\u2005', '')
     content = content.replace(f'@{bot_nickname} ', '')
     if content.endswith(f'@{bot_nickname}'):
