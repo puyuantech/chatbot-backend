@@ -76,6 +76,8 @@ class ChatFromWechatAPI(ApiViewHandler):
     @params_required(*['content'])
     def post(self):
         """微信群成员聊天记录及回复"""
+        current_app.logger.info(f'[ChatFromWechatAPI] (input){self.input}')
+
         msg_id, username, chatroomname, content = self.input.msg_id, self.input.username, self.input.chatroomname, self.input.content
 
         # 如果是机器人发言
@@ -92,22 +94,29 @@ class ChatFromWechatAPI(ApiViewHandler):
         be_at, bot_id, share_token, stage = bot_config['be_at'], bot_config['bot_id'], bot_config['share_token'], bot_config['stage']
 
         if be_at:
-            content = replace_content(content, zidou_bot.nickname, msg_id)
+            if f'@{zidou_bot.nickname}' not in content:
+                current_app.logger.info(f'[ChatFromWechatAPI] Quit procssing msg {msg_id}: bot has not been @')
+                return
 
-        current_app.logger.info(f'Start requesting RSVP for msg {msg_id}, content: {content}')
+            content = replace_content(content, zidou_bot.nickname)
+
+        current_app.logger.info(f'[ChatFromWechatAPI] Start requesting RSVP for msg {msg_id}, content: {content}')
 
         ts = datetime.datetime.now()
         user_id = ChatbotUserInfo.user_active_by_wechat(username, ts, nick_name, avatar_url)
         if not user_id:
-            raise LogicError(f'Failed processing msg {msg_id}: cannot get user_id for user {username}')
+            raise LogicError(f'[ChatFromWechatAPI] Failed processing msg {msg_id}: cannot get user_id for user {username}')
 
         try:
             rsvp_group = RsvpBot.get_rsvp_bot(bot_id, share_token)
             resp = rsvp_group.get_bot_response(content, f'openidgroup_{username}', stage)
-            current_app.logger.info(f'resp: {resp}')
+            current_app.logger.info(f'[ChatFromWechatAPI] resp: {resp}')
         except Exception:
-            current_app.logger.error(traceback.format_exc())
-            raise LogicError(f'Failed to get rsvp response for msg {msg_id}, content: {content}')
+            current_app.logger.error(f'[ChatFromWechatAPI] (Exception){traceback.format_exc()}')
+            resp = None
+
+        if not resp:
+            raise LogicError(f'[ChatFromWechatAPI] Failed to get rsvp response for msg {msg_id}, content: {content}')
 
         similarity, bot_reply = parse_bot_response(resp, be_at, chatroomname, content, username, msg_id, nick_name, zidou_bot)
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
