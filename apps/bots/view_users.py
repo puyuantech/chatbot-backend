@@ -28,7 +28,6 @@ class UserInfoAPI(ApiViewHandler):
 class UserListAPI(ApiViewHandler):
 
     @login_required
-    @params_required(*['user_id'])
     def get(self):
         """查询用户列表"""
         top_n = self.input.top_n

@@ -59,6 +59,8 @@ class ChatFromMiniAPI(ApiViewHandler):
     @params_required(*['query', 'user_id'])
     def post(self):
         """聊天"""
+        current_app.logger.info(f'[ChatFromMiniAPI] (input){self.input}')
+
         rsvp_bot = RsvpBot.get_rsvp_bot()
         resp = rsvp_bot.get_bot_response(self.input.query, f'openidprism_{self.input.user_id}')
         if not resp:
