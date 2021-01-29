@@ -7,7 +7,7 @@ from bases.viewhandler import ApiViewHandler
 from models import ChatbotDialogStat, ChatbotUserInfo
 from utils.decorators import login_required, params_required
 
-from .constants import Operation, TagType
+from .constants import EMPTY_VALUE, Operation, TagType
 from .libs.users import get_user_dict, get_user_id_from_rsvp, save_product_view
 
 
@@ -64,7 +64,7 @@ class UserTagAPI(ApiViewHandler):
         if not chatbot_user:
             return
 
-        tag_value = float(self.input.tag_value)
+        tag_value = None if self.input.tag_value in EMPTY_VALUE else float(self.input.tag_value)
 
         if self.input.tag_type == TagType.expertise:
             if self.input.operation == Operation.set:

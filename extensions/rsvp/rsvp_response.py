@@ -58,7 +58,7 @@ class RsvpResponse:
         clicks, replies = [], []
         for button in item.get('buttons', []):
             if 'postback' in button:
-                url = button.get('postback')
+                url = button['postback']
 
                 if url.startswith('https://www.prism-advisor.com/'):
                     url = self.parse_url(url)
@@ -80,6 +80,9 @@ class RsvpResponse:
             self.parse_mini(d)
 
     def parse_message(self, data):
+        # {
+        #     "message": "以下是【股票型】明星基金经理："
+        # }
         if not data:
             return
 
@@ -104,6 +107,24 @@ class RsvpResponse:
             self.parse_item(d)
 
     def parse_list(self, data):
+        # {
+        #     "type": "horizontal",
+        #     "items": [
+        #         {
+        #             "buttons": [
+        #                 {
+        #                     "postback": "易方达消费行业怎么样？",
+        #                     "text": "代表作：易方达消费行业"
+        #                 },
+        #                 {
+        #                     "postback": "https://www.prism-advisor.com/m/#/mp/fund-manager/16E872?user_id=openidgroup_wxid_sls2xwidrwea21&chatbot=true",
+        #                     "text": "点击查看基金经理详情"
+        #                 }
+        #             ],
+        #             "title": "【萧楠】消费之王，坚守价值投资，屡获奖项。现任职易方达基金，从业3015天。\n【管理基金】\n[股票型] 超过100.0%同类型基金经理，取得了年化收益20.83%的收益，最大回撤控制在27.93%。"
+        #         }
+        #     ]
+        # }
         if not data:
             return
 
@@ -111,6 +132,14 @@ class RsvpResponse:
             self.parse_item(d)
 
     def parse_quick_replies(self, data):
+        # {
+        #     "quickReplies": [
+        #         {
+        #             "postback": "好的债券型明星基金经理有哪些？",
+        #             "text": "债券型明星基金经理"
+        #         }
+        #     ]
+        # }
         if not data:
             return
 
