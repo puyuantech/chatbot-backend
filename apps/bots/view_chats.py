@@ -1,17 +1,18 @@
 
 import datetime
 import json
+import traceback
 
 from flask import current_app
 
+from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from extensions.rsvp import RsvpBot, RsvpResponse
-from extensions.wxwork import WxWorkNotification
 from extensions.zidou import ZiDouBot
 from models import ChatbotUserInfo, WechatGroupBotConfig
 from utils.decorators import login_required, params_required
 
-from .libs.chats import get_wechat_group_bot_config
+from .libs.chats import get_nick_name_and_avatar_url, get_wechat_group_bot_config, parse_bot_response, replace_content
 from .libs.dialogs import save_chatbot_dialog
 
 
@@ -72,89 +73,43 @@ class ChatFromMiniAPI(ApiViewHandler):
 
 class ChatFromWechatAPI(ApiViewHandler):
 
-    @params_required(*['query', 'user_id'])
+    @params_required(*['content'])
     def post(self):
         """微信群成员聊天记录及回复"""
-        chatroom_member_info_dict = current_app.chatroom_member_info_dict
-
-        msg_id = self.input.msg_id
-        username = self.input.username
-        chatroomname = self.input.chatroomname
-        content = self.input.content
+        msg_id, username, chatroomname, content = self.input.msg_id, self.input.username, self.input.chatroomname, self.input.content
 
         # 如果是机器人发言
         if username == self.input.bot_username:
             return
 
-        if self.input.type != 'text' or not content:
+        if self.input.type != 'text':
             return
 
         zidou_bot = ZiDouBot.get_chatroom_zidou_bot(chatroomname, current_app.chatroom_zidou_account_dict)
+        nick_name, avatar_url = get_nick_name_and_avatar_url(username, chatroomname, msg_id, zidou_bot)
 
-        if username not in chatroom_member_info_dict.get(chatroomname, {}):
-            chatroom_member_info_dict[chatroomname] = zidou_bot.get_member_info(chatroomname)
-            if username not in chatroom_member_info_dict[chatroomname]:
-                current_app.logger.warning(f'Failed processing msg {msg_id}: user {username} not found in {chatroomname}')
-                return
+        bot_config = get_wechat_group_bot_config(chatroomname)
+        be_at, bot_id, share_token, stage = bot_config['be_at'], bot_config['bot_id'], bot_config['share_token'], bot_config['stage']
 
-        wechat_group_bot_config = get_wechat_group_bot_config(chatroomname)
-        if wechat_group_bot_config['be_at']:
-            bot_nickname = zidou_bot.nickname
-            bot_be_at = f'@{bot_nickname}' in content
-            if not bot_be_at:
-                current_app.logger.info(f'Quit procssing msg {msg_id}: bot has not been @')
-                return
-
-            content = content.replace(f'@{bot_nickname}\u2005', '')
-            content = content.replace(f'@{bot_nickname} ', '')
-            if content.endswith(f'@{bot_nickname}'):
-                content = content[:-len(f'@{bot_nickname}')]
+        if be_at:
+            content = replace_content(content, zidou_bot.nickname, msg_id)
 
         current_app.logger.info(f'Start requesting RSVP for msg {msg_id}, content: {content}')
-        rsvp_group = RsvpBot.get_rsvp_bot(wechat_group_bot_config['bot_id'], wechat_group_bot_config['share_token'])
 
         ts = datetime.datetime.now()
-        nick_name = chatroom_member_info_dict[chatroomname][username]['nickname']
-        avatar_url = chatroom_member_info_dict[chatroomname][username]['avatar_url']
         user_id = ChatbotUserInfo.user_active_by_wechat(username, ts, nick_name, avatar_url)
         if not user_id:
-            current_app.logger.warning(f'Failed processing msg {msg_id}: cannot get user_id for user {username}')
-            return
+            raise LogicError(f'Failed processing msg {msg_id}: cannot get user_id for user {username}')
 
-        uid = f'openidgroup_{username}'
         try:
-            resp = rsvp_group.get_bot_response(content, uid, wechat_group_bot_config['stage'])
-        except Exception as e:
-            import traceback
+            rsvp_group = RsvpBot.get_rsvp_bot(bot_id, share_token)
+            resp = rsvp_group.get_bot_response(content, f'openidgroup_{username}', stage)
+            current_app.logger.info(f'resp: {resp}')
+        except Exception:
             current_app.logger.error(traceback.format_exc())
-            resp = None
+            raise LogicError(f'Failed to get rsvp response for msg {msg_id}, content: {content}')
 
-        if not resp:
-            current_app.logger.warning(f'Failed to get rsvp response for msg {msg_id}, content: {content}')
-            return
-        current_app.logger.info(f'resp: {resp}')
-        if resp.get('topic', 'fallback') != 'fallback' or wechat_group_bot_config['be_at']:
-            similarity, bot_reply, start_miniprogram = RsvpResponse(
-                resp.get('stage', []),
-                chatroomname,
-                wechat_group_bot_config['be_at']
-            ).parse_stages()
-
-            if bot_reply:
-                zidou_bot.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
-            else:
-                current_app.logger.warning(f'Failed to get bot reply for {msg_id}, content: {content}')
-
-            if start_miniprogram:
-                miniprogram_id_and_ts = zidou_bot.get_miniprogram_id_and_ts('棱小镜')
-                if miniprogram_id_and_ts and not bot_reply:
-                    zidou_bot.at_somebody(chatroomname, username, '', f'\n请打开下面小程序：')
-                    zidou_bot.send_miniprogram_message(chatroomname, miniprogram_id_and_ts[0])
-        else:
-            bot_reply, similarity = '', 0
-            bad_case = f'Bad case:\n{nick_name}: {content}'
-            WxWorkNotification(current_app.logger).send(bad_case)
-
+        similarity, bot_reply = parse_bot_response(resp, be_at, chatroomname, content, username, msg_id, nick_name, zidou_bot)
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
         save_chatbot_dialog(user_id, content, bot_reply, bot_raw_reply, similarity, ts, chatroomname)
         return 'success'
