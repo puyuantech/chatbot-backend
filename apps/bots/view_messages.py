@@ -12,7 +12,7 @@ class TextMessageAPI(ApiViewHandler):
     @params_required(*['content'])
     def post(self):
         """发送文本消息"""
-        chatroom_list = self.input.chatroomname if type(self.input.chatroomname) is list else [self.input.chatroomname]
+        chatroom_list = self.input.chatroomname.split(',')
         for chatroomname in chatroom_list:
             zidou_bot = ZiDouBot.get_chatroom_zidou_bot(chatroomname, current_app.chatroom_zidou_account_dict)
             resp = zidou_bot.send_text_message(chatroomname, self.input.content)
@@ -33,7 +33,7 @@ class LinkMessageAPI(ApiViewHandler):
         if not source_url:
             raise LogicError('需要 source_url 参数')
 
-        chatroom_list = self.input.chatroomname if type(self.input.chatroomname) is list else [self.input.chatroomname]
+        chatroom_list = self.input.chatroomname.split(',')
         for chatroomname in chatroom_list:
             zidou_bot = ZiDouBot.get_chatroom_zidou_bot(chatroomname, current_app.chatroom_zidou_account_dict)
             resp = zidou_bot.send_link_message(
@@ -55,7 +55,7 @@ class PicMessageAPI(ApiViewHandler):
         if not file_obj:
             raise LogicError('需要 files!')
 
-        chatroom_list = self.input.chatroomname if type(self.input.chatroomname) is list else [self.input.chatroomname]
+        chatroom_list = self.input.chatroomname.split(',')
         zidou_bot_pic_material = {}
         for chatroomname in chatroom_list:
             zidou_bot = ZiDouBot.get_chatroom_zidou_bot(chatroomname, current_app.chatroom_zidou_account_dict)
