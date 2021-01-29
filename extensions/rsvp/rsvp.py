@@ -84,11 +84,11 @@ class Rsvp:
                 self.logger.error(f'Fail to parse bot resp: {resp}')
             else:
                 print(f'Fail to parse bot resp: {resp}')
-            return None
+            return
 
         return resp
 
-    def get_bot_info(self):
+    def get_bot_info(self) -> dict:
         headers = {
             'Content-Type': 'application/json'
         }
@@ -97,3 +97,4 @@ class Rsvp:
         }
         resp = requests.get(self.bot_info_url, headers=headers, params=params)
         return resp.json()
+

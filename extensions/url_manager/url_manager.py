@@ -11,7 +11,7 @@ class UrlManager:
     request_url = 'https://ljxj.top/yourls-api.php'
 
     @classmethod
-    def generate_short_url(cls, long_url, permanent=False):
+    def generate_short_url(cls, long_url, permanent=False) -> str:
         '''
         permanent: Expires in three months if false else Never expires
         '''

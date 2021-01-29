@@ -1,8 +1,10 @@
+
 import functools
 
-from models import UserLogin, ChatbotUserInfo
 from flask import g, request
-from bases.exceptions import LogicError, AuthError, AuthPermissionError
+
+from bases.exceptions import AuthError, AuthPermissionError, LogicError
+from models import UserLogin
 
 
 def login_required(func):

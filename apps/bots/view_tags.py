@@ -1,4 +1,6 @@
+
 from flask import g
+
 from bases.exceptions import VerifyError
 from bases.viewhandler import ApiViewHandler
 from models.chat_bot import ChatbotDialogTag, ChatbotTag

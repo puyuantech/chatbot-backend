@@ -1,7 +1,8 @@
+
 import requests
 
 
-class Cognai(object):
+class Cognai:
 
     def __init__(self, url, user_account, user_pwd):
         self.url = url
@@ -38,8 +39,9 @@ class Cognai(object):
             'Content-Type': 'application/json'
         }
         resp = requests.post(self.url + '/user/get_token', headers=headers, json=data)
-        
+
         resp = resp.json()
         if not resp or resp.get('code') != 0:
             return None
         return resp['data']['token']
+
