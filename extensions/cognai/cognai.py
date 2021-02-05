@@ -17,7 +17,7 @@ class Cognai:
         if not self.token:
             self.token = self._get_token(self.user_account, self.user_pwd)
             if not self.token:
-                return None
+                return
 
         params = {
             'q': q,
@@ -42,6 +42,6 @@ class Cognai:
 
         resp = resp.json()
         if not resp or resp.get('code') != 0:
-            return None
+            return
         return resp['data']['token']
 

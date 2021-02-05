@@ -16,6 +16,4 @@ class WeChatUnionID(BaseModel):
         user_wx = cls.filter_by_query(
             union_id=union_id
         ).first()
-        if not user_wx:
-            return None
-        return user_wx.user_id
+        return user_wx and user_wx.user_id

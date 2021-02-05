@@ -16,7 +16,7 @@ class TextMessageAPI(ApiViewHandler):
         for chatroomname in chatroom_list:
             zidou_bot = ZiDouBot.get_chatroom_zidou_bot(chatroomname, current_app.chatroom_zidou_account_dict)
             resp = zidou_bot.send_text_message(chatroomname, self.input.content)
-            current_app.logger.info(resp.json())
+            current_app.logger.info(f'[send_text_message] (response){resp.json()}')
         return 'success'
 
 
@@ -43,7 +43,7 @@ class LinkMessageAPI(ApiViewHandler):
                 description=description,
                 image_url=image_url,
             )
-            current_app.logger.info(resp.json())
+            current_app.logger.info(f'[send_link_message] (response){resp.json()}')
         return 'success'
 
 
@@ -66,10 +66,10 @@ class PicMessageAPI(ApiViewHandler):
                     raise BaseError('Failed to upload pic material!')
                 file_obj.seek(0)
                 zidou_bot_pic_material[zidou_bot.phone] = pic_id
-            
+
             pic_id = zidou_bot_pic_material[zidou_bot.phone]
 
             resp = zidou_bot.send_pic_message(chatroomname, pic_id)
-            current_app.logger.info(resp.json())
+            current_app.logger.info(f'[send_pic_message] (response){resp.json()}')
         return 'success'
 

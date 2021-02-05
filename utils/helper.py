@@ -106,7 +106,7 @@ def generate_sql_pagination():
 
 def json_str_to_dict(data):
     if not data:
-        return None
+        return
     return json.loads(data)
 
 

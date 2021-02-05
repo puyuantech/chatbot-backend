@@ -26,7 +26,7 @@ class UrlManager:
         if response['statusCode'] != 200:
             cls.logger.error(f"[generate_short_url] (statusCode){response['statusCode']} "
                 f"(status){response['status']} (message){response['message']}")
-            return None
+            return
 
         cls.logger.info(f"[generate_short_url] (long_url){long_url} (short_url){response['shorturl']}")
         return response['shorturl']
