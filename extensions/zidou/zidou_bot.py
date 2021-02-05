@@ -18,7 +18,7 @@ class ZiDouBot:
         }
 
     @classmethod
-    def get_chatroom_zidou_bot(cls, chatroomname, chatroom_zidou_account_dict):
+    def get_chatroom_zidou_bot(cls, chatroomname, chatroom_zidou_account_dict: dict):
         zidou_bot_dict = cls.get_zidou_bot_dict()
 
         if chatroomname not in chatroom_zidou_account_dict:
@@ -28,12 +28,12 @@ class ZiDouBot:
                     chatroomname = chatroom.get('chatroomname')
                     chatroom_zidou_account_dict[chatroomname] = phone
 
-        phone = chatroom_zidou_account_dict.get(chatroomname, '')
+        phone = chatroom_zidou_account_dict.get(chatroomname)
         if not phone:
             current_app.logger.error(f'Failed to send_msg, no related zidou bot for chatroomname: {chatroomname}')
-            return None
+            return
 
-        return zidou_bot_dict.get(phone, None)
+        return zidou_bot_dict.get(phone)
 
     @classmethod
     def get_wechat_group_list(cls, chatroom_member_info_dict, chatroom_zidou_account_dict):

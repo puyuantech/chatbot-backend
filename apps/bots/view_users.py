@@ -21,6 +21,9 @@ class UserInfoAPI(ApiViewHandler):
 
         if not user_id:
             user_id = get_user_id_from_rsvp(rsvp_user_id, datetime.now())
+            if not user_id:
+                return {}
+
         user = db.session.query(ChatbotUserInfo).filter_by(id=user_id).one_or_none()
         return get_user_dict(user)
 

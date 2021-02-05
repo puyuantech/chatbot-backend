@@ -61,10 +61,16 @@ class ChatFromMiniAPI(ApiViewHandler):
         """聊天"""
         current_app.logger.info(f'[ChatFromMiniAPI] (input){self.input}')
 
-        rsvp_bot = RsvpBot.get_rsvp_bot()
-        resp = rsvp_bot.get_bot_response(self.input.query, f'openidprism_{self.input.user_id}')
+        try:
+            rsvp_bot = RsvpBot.get_rsvp_bot()
+            resp = rsvp_bot.get_bot_response(self.input.query, f'openidprism_{self.input.user_id}')
+            current_app.logger.info(f'[ChatFromMiniAPI] rsvp (response){resp}')
+        except Exception:
+            current_app.logger.error(f'[ChatFromMiniAPI] rsvp (Exception){traceback.format_exc()}')
+            resp = None
+
         if not resp:
-            return resp
+            raise LogicError(f'[ChatFromMiniAPI] Failed to get rsvp response for content: {self.input.query}')
 
         similarity, bot_reply, _ = RsvpResponse(resp.get('stage', [])).parse_stages()
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
@@ -110,11 +116,11 @@ class ChatFromWechatAPI(ApiViewHandler):
             raise LogicError(f'[ChatFromWechatAPI] Failed processing msg {msg_id}: cannot get user_id for user {username}')
 
         try:
-            rsvp_group = RsvpBot.get_rsvp_bot(bot_id, share_token)
-            resp = rsvp_group.get_bot_response(content, f'openidgroup_{username}', stage)
-            current_app.logger.info(f'[ChatFromWechatAPI] resp: {resp}')
+            rsvp_bot = RsvpBot.get_rsvp_bot(bot_id, share_token)
+            resp = rsvp_bot.get_bot_response(content, f'openidgroup_{username}', stage)
+            current_app.logger.info(f'[ChatFromWechatAPI] rsvp (response){resp}')
         except Exception:
-            current_app.logger.error(f'[ChatFromWechatAPI] (Exception){traceback.format_exc()}')
+            current_app.logger.error(f'[ChatFromWechatAPI] rsvp (Exception){traceback.format_exc()}')
             resp = None
 
         if not resp:
