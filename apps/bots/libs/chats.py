@@ -3,7 +3,7 @@ from flask import current_app
 
 from bases.exceptions import LogicError
 from bases.globals import db, settings
-from extensions.rsvp import RsvpResponse
+from extensions.rsvp import RsvpJson
 from extensions.wxwork import WxWorkNotification
 from extensions.zidou import ZiDou
 from models import WechatGroupBotConfig
@@ -44,7 +44,7 @@ def parse_bot_response(response, be_at, chatroomname, content, username, msg_id,
     similarity, bot_reply = 0, ''
 
     if response.get('topic', 'fallback') != 'fallback' or be_at:
-        similarity, bot_reply, start_miniprogram = RsvpResponse(response.get('stage', []), chatroomname, be_at).parse_stages()
+        similarity, bot_reply, start_miniprogram, _ = RsvpJson(response, chatroomname, be_at).parse_response()
 
         if bot_reply:
             zidou_bot.at_somebody(chatroomname, username, '', f'\n{bot_reply}')
