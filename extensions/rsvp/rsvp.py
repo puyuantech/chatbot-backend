@@ -84,7 +84,7 @@ class Rsvp:
                 self.logger.error(f'Fail to parse bot resp: {resp}')
             else:
                 print(f'Fail to parse bot resp: {resp}')
-            return
+            return None
 
         return resp
 

@@ -56,5 +56,5 @@ class ArticleAPI(ApiViewHandler):
 
         print(f'wxids: {wxids}')
 
-        articles = WeChatArticle.get_articles(wxids, page_index*page_size, page_size, start_time, end_time)
+        articles = WeChatArticle.get_articles(wxids, page_index, page_size, start_time, end_time)
         return articles
