@@ -113,7 +113,7 @@ class ChatFromWechatAPI(ApiViewHandler):
         ts = datetime.datetime.now()
         user_id = ChatbotUserInfo.user_active_by_wechat(username, ts, nick_name, avatar_url)
         if not user_id:
-            raise LogicError(f'[ChatFromWechatAPI] Failed processing msg {msg_id}: cannot get user_id for user {username}')
+            current_app.logger.error(f'[ChatFromWechatAPI] Failed processing msg {msg_id}: cannot get user_id for user {username}')
 
         try:
             rsvp_bot = RsvpBot.get_rsvp_bot(bot_id, share_token)
@@ -124,7 +124,17 @@ class ChatFromWechatAPI(ApiViewHandler):
             resp = None
 
         if not resp:
-            raise LogicError(f'[ChatFromWechatAPI] Failed to get rsvp response for msg {msg_id}, content: {content}')
+            current_app.logger.error(f'[ChatFromWechatAPI] Failed to get rsvp response for msg {msg_id}, content: {content}')
+            if not be_at:
+                return
+            else:
+                resp = {
+                    'topic': 'fallback',
+                    'stage': [
+                        {'message': '抱歉，刚才我没听懂，已经记下了。请问还有什么可以帮您？'}
+                    ],
+                    'status': -1
+                }
 
         similarity, bot_reply = parse_bot_response(resp, be_at, chatroomname, content, username, msg_id, nick_name, zidou_bot)
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)

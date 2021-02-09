@@ -1,5 +1,16 @@
 import sys
+import datetime
 import requests
+
+def get_last_trading_day():
+    get_url = 'https://www.prism-advisor.com/api/v1/cashbook/max_trading_date'
+    req_headers = {
+        'Content-Type': 'application/json'
+    }
+    last_trading_day_str = requests.get(get_url, headers=req_headers).json()['data']
+    last_trading_day = datetime.datetime.strptime(last_trading_day_str, '%Y-%m-%d').date()
+
+    return last_trading_day
 
 def get_index_daily_report():
     get_url = 'https://www.prism-advisor.com/api/v1/chatbot/market/index_daily_report'
@@ -73,6 +84,12 @@ def send_daily_message(msg, chatroomname):
 if __name__ == "__main__":
     if len(sys.argv) <= 2:
         print('Bot_name and chatroomname (list) are needed!')
+        exit()
+
+    last_trading_day = get_last_trading_day()
+    yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).date()
+    if yesterday != last_trading_day:
+        print(f'Yesterday {yesterday} is not trading day! Last trading day is {last_trading_day}')
         exit()
 
     msg = get_daily_message(sys.argv[1])

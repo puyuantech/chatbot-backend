@@ -98,7 +98,7 @@ class WeChatArticle(BaseModel):
             page_index = 0
             page_size = 20
 
-        articles = query.limit(page_size).offset(page_index).all()
+        articles = query.limit(page_size).offset(page_index*page_size).all()
         return [
             {
                 'id': article.id,

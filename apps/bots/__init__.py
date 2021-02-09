@@ -12,7 +12,7 @@ from .view_prism import api as prism_api
 from .view_chats import GroupListAPI, GroupBotConfigAPI, ChatBotInfoAPI, ChatFromMiniAPI, ChatFromWechatAPI
 from .view_cognai import CognaiDialogAPI
 from .view_dialogs import DialogsByTagAPI, DialogsByUserAPI, DialogsByWechatAPI
-from .view_messages import TextMessageAPI, LinkMessageAPI, PicMessageAPI
+from .view_messages import TextMessageAPI, LinkMessageAPI, PicMessageAPI, MessageHistoryAPI
 from .view_statistics import (ExpertiseDistributionAPI, RiskToleranceDistributionAPI, DialogCountDistributionAPI,
                               ProductViewCountAPI, UserCountAPI, DialogCountAPI, ProductDailyViewAPI)
 from .view_tags import TagsAPI, TopTagsAPI, TagAPI
@@ -36,6 +36,7 @@ api.add_resource(DialogsByWechatAPI, '/api/v1/chatbot/wechat_group/dialog')
 api.add_resource(TextMessageAPI, '/api/v1/chatbot/wechat_group/send_text_msg')
 api.add_resource(LinkMessageAPI, '/api/v1/chatbot/wechat_group/send_link_msg')
 api.add_resource(PicMessageAPI, '/api/v1/chatbot/wechat_group/send_pic_msg')
+api.add_resource(MessageHistoryAPI, '/api/v1/chatbot/wechat_group/msg_history')
 
 api.add_resource(ExpertiseDistributionAPI, '/api/v1/chatbot/statistics/user_expertise')
 api.add_resource(RiskToleranceDistributionAPI, '/api/v1/chatbot/statistics/user_risk_tolerance')
