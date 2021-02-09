@@ -74,8 +74,9 @@ class PicMessageAPI(ApiViewHandler):
 
             resp = zidou_bot.send_pic_message(chatroomname, pic_id)
             current_app.logger.info(f'[send_pic_message] (response){resp.json()}')
-            save_pic_message(user_id=1, chatroomname=chatroomname, 
-                             pic_url='https://goss1.cfp.cn/creative/vcg/800/version23/VCG41175510742.jpg')
+            # # Upload and save pic message
+            # save_pic_message(user_id=1, chatroomname=chatroomname, 
+            #                  pic_url='https://goss1.cfp.cn/creative/vcg/800/version23/VCG41175510742.jpg')
         return 'success'
 
 
