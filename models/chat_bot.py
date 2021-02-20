@@ -75,7 +75,7 @@ class ChatbotUserInfo(BaseModel):
 
     @classmethod
     def user_active_by_id(cls, user_id, ts) -> int:
-        self = db.session.query(cls).filter_by(id=user_id).one_or_none()
+        self = cls.filter_by_query(id=user_id).one_or_none()
         if not self:
             current_app.logger.error(f'[user_active_by_id] Cannot find user with ID {user_id}')
             return
@@ -86,7 +86,7 @@ class ChatbotUserInfo(BaseModel):
 
     @classmethod
     def user_active_by_wechat(cls, wechat_user_name, ts, nick_name=None, head_img=None) -> int:
-        self = db.session.query(cls).filter_by(wechat_user_name=wechat_user_name).one_or_none()
+        self = cls.filter_by_query(wechat_user_name=wechat_user_name).one_or_none()
         if not self:
             self = cls(
                 create_time=ts,
@@ -225,7 +225,7 @@ class ChatbotDialogStat(BaseModel):
 
     @classmethod
     def update_dialog_stat(cls, user_id, ts, wechat_group_id=None):
-        self = db.session.query(cls).filter_by(
+        self = cls.filter_by_query(
             user_id=user_id,
             ts=ts,
             wechat_group_id=wechat_group_id,
@@ -269,7 +269,7 @@ class ChatbotUserStat(BaseModel):
 
     @classmethod
     def update_user_stat(cls, ts):
-        self = db.session.query(cls).filter_by(ts=ts).one_or_none()
+        self = cls.filter_by_query(ts=ts).one_or_none()
         if not self:
             self = cls(ts=ts)
 
@@ -303,7 +303,7 @@ class ChatbotDialog(BaseModel):
 
     @classmethod
     def get_user_dialogs(cls, user_id, start=None, end=None):
-        query = db.session.query(cls).filter_by(user_id=user_id).order_by(cls.ts.desc())
+        query = cls.filter_by_query(user_id=user_id).order_by(cls.ts.desc())
         if start:
             query = query.filter(cls.ts >= start)
         if end:
@@ -312,7 +312,7 @@ class ChatbotDialog(BaseModel):
 
     @classmethod
     def get_group_dialogs(cls, wechat_group_id, start=None, end=None):
-        query = db.session.query(cls).filter_by(wechat_group_id=wechat_group_id).order_by(cls.ts.desc())
+        query = cls.filter_by_query(wechat_group_id=wechat_group_id).order_by(cls.ts.desc())
         if start:
             query = query.filter(cls.ts >= start)
         if end:
@@ -397,7 +397,7 @@ class ChatbotProductDailyView(BaseModel):
 
     @classmethod
     def update_product_daily_view(cls, user_id, ts, wechat_group_id=None):
-        self = db.session.query(cls).filter_by(
+        self = cls.filter_by_query(
             user_id=user_id,
             ts=ts,
             wechat_group_id=wechat_group_id,
@@ -457,7 +457,7 @@ class WechatGroupBotConfig(BaseModel):
 
     @classmethod
     def update_bot_config(cls, wechat_group_id, bot_id, share_token, stage, be_at):
-        self = db.session.query(cls).filter_by(wechat_group_id=wechat_group_id).one_or_none()
+        self = cls.filter_by_query(wechat_group_id=wechat_group_id).one_or_none()
 
         kwargs = dict(
             bot_id=bot_id,

@@ -28,7 +28,7 @@ class WeChatPublicAccount(BaseModel):
 
     @classmethod
     def get_public_account_detail(cls, wxid):
-        account = db.session.query(cls).filter_by(wxid=wxid).one_or_none()
+        account = cls.filter_by_query(wxid=wxid).one_or_none()
         return {
             'wxid': account.wxid,
             'wxname': account.wxname,
@@ -71,12 +71,12 @@ class WeChatArticle(BaseModel):
             query = query.filter(
                 cls.doc_ct <= end_time
             )
-            
+
         article_count = query.count()
         return {
             'count': article_count
         }
-        
+
     @classmethod
     def get_articles(cls, wxids=[], page_index=0, page_size=20, start_time=None, end_time=None):
         query = cls.query.filter(
