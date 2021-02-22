@@ -26,7 +26,7 @@ def get_wechat_group_bot_config(wechat_group_id):
 
     result = {'wechat_group_id': wechat_group_id}
     if not bot_config:
-        rsvp_group_conf = settings['THIRD_SETTING']['rsvp_group']
+        rsvp_group_conf = settings['THIRD_SETTING']['rsvp_union']
         result['bot_id'] = rsvp_group_conf['bot_id']
         result['share_token'] = rsvp_group_conf['share_token']
         result['stage'] = 'release'
