@@ -246,10 +246,10 @@ class ChatbotUserStat(BaseModel):
     '''对话机器人用户数日度统计'''
     __tablename__ = 'chatbot_user_stat'
 
-    id = db.Column(db.Integer, primary_key=True)                # 数据行编号
-    user_count = db.Column(db.Integer)                          # 总用户数
-    active_user_count = db.Column(db.Integer)                   # 活跃用户数
-    ts = db.Column(db.DATETIME)                                 # 时间戳
+    id = db.Column(db.Integer, primary_key=True)  # 数据行编号
+    user_count = db.Column(db.Integer)            # 总用户数
+    active_user_count = db.Column(db.Integer)     # 活跃用户数
+    ts = db.Column(db.DATETIME, unique=True)      # 时间戳
 
     @classmethod
     def get_ts_counts(cls, start=None, end=None):
