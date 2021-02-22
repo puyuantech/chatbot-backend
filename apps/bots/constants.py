@@ -1,4 +1,6 @@
 
+import json
+
 from bases.base_enmu import EnumBase
 
 
@@ -12,6 +14,20 @@ MARKET_INDEX_IDS = {
     'hsi': '恒生指数',
     'sp500': '标普500',
     'nasdaq_100': '纳斯达克100',
+}
+ERROR_RSVP_RESPONSE = {
+    'topic': 'fallback',
+    'status': -1,
+    'stage': [{
+        'message': json.dumps({
+            'text': {
+                'type': 'message',
+                'detail': 'error',
+                'quick_reply': [],
+                'data': '抱歉，刚才我没听懂，已经记下了。请问还有什么可以帮您？'
+            },
+        })
+    }],
 }
 
 

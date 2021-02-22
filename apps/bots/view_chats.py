@@ -5,14 +5,13 @@ import traceback
 
 from flask import current_app
 
-from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
 from extensions.rsvp import RsvpBot, RsvpJson
 from extensions.zidou import ZiDouBot
 from models import ChatbotUserInfo, WechatGroupBotConfig
 from utils.decorators import login_required, params_required
 
-from .constants import get_bot_init_reply
+from .constants import ERROR_RSVP_RESPONSE, get_bot_init_reply
 from .libs.chats import get_nick_name_and_avatar_url, get_wechat_group_bot_config, parse_bot_response, replace_content
 from .libs.dialogs import save_chatbot_dialog
 
@@ -73,7 +72,8 @@ class ChatFromMiniAPI(ApiViewHandler):
             resp = None
 
         if not resp:
-            raise LogicError(f'[ChatFromMiniAPI] Failed to get rsvp response for content: {self.input.query}')
+            current_app.logger.error(f'[ChatFromMiniAPI] Failed to get rsvp response for content: {self.input.query}')
+            resp = ERROR_RSVP_RESPONSE
 
         similarity, bot_reply, _, data = RsvpJson(resp, short_url=False).parse_response()
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
@@ -130,21 +130,7 @@ class ChatFromWechatAPI(ApiViewHandler):
             current_app.logger.error(f'[ChatFromWechatAPI] Failed to get rsvp response for msg {msg_id}, content: {content}')
             if not be_at:
                 return
-            else:
-                resp = {
-                    'topic': 'fallback',
-                    'status': -1,
-                    'stage': [{
-                        'message': json.dumps({
-                            'text': {
-                                'type': 'message',
-                                'detail': 'error',
-                                'quick_reply': [],
-                                'data': '抱歉，刚才我没听懂，已经记下了。请问还有什么可以帮您？'
-                            },
-                        })
-                    }],
-                }
+            resp = ERROR_RSVP_RESPONSE
 
         similarity, bot_reply = parse_bot_response(resp, be_at, chatroomname, content, username, msg_id, nick_name, zidou_bot)
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
