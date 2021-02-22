@@ -133,10 +133,17 @@ class ChatFromWechatAPI(ApiViewHandler):
             else:
                 resp = {
                     'topic': 'fallback',
-                    'stage': [
-                        {'message': '抱歉，刚才我没听懂，已经记下了。请问还有什么可以帮您？'}
-                    ],
-                    'status': -1
+                    'status': -1,
+                    'stage': [{
+                        'message': json.dumps({
+                            'text': {
+                                'type': 'message',
+                                'detail': 'error',
+                                'quick_reply': [],
+                                'data': '抱歉，刚才我没听懂，已经记下了。请问还有什么可以帮您？'
+                            },
+                        })
+                    }],
                 }
 
         similarity, bot_reply = parse_bot_response(resp, be_at, chatroomname, content, username, msg_id, nick_name, zidou_bot)
