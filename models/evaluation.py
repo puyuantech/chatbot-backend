@@ -37,12 +37,12 @@ class RiskAnswer(BaseModel):
 
     @classmethod
     def get_risk_answer(cls, user_id) -> dict:
-        risk = db.session.query(cls).filter_by(user_id=user_id).one_or_none()
+        risk = cls.filter_by_query(user_id=user_id).one_or_none()
         return risk and risk.to_dict() or {}
 
     @classmethod
     def save_risk_answer(cls, user_id, risk_level, answer, score, user):
-        old = db.session.query(cls).filter_by(user_id=user_id).one_or_none()
+        old = cls.filter_by_query(user_id=user_id).one_or_none()
         if old:
             old.delete()
 

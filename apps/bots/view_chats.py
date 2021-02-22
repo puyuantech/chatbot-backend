@@ -7,11 +7,12 @@ from flask import current_app
 
 from bases.exceptions import LogicError
 from bases.viewhandler import ApiViewHandler
-from extensions.rsvp import RsvpBot, RsvpResponse
+from extensions.rsvp import RsvpBot, RsvpJson
 from extensions.zidou import ZiDouBot
 from models import ChatbotUserInfo, WechatGroupBotConfig
 from utils.decorators import login_required, params_required
 
+from .constants import get_bot_init_reply
 from .libs.chats import get_nick_name_and_avatar_url, get_wechat_group_bot_config, parse_bot_response, replace_content
 from .libs.dialogs import save_chatbot_dialog
 
@@ -50,8 +51,10 @@ class ChatBotInfoAPI(ApiViewHandler):
 
     def get(self):
         """获取聊天机器人信息（用于小程序前端展示）"""
-        rsvp_bot = RsvpBot.get_rsvp_bot()
-        return rsvp_bot.get_bot_info()
+        # 获取机器人初始化欢迎语
+        return get_bot_init_reply()
+        # rsvp_bot = RsvpBot.get_rsvp_bot()
+        # return rsvp_bot.get_bot_info()
 
 
 class ChatFromMiniAPI(ApiViewHandler):
@@ -72,11 +75,11 @@ class ChatFromMiniAPI(ApiViewHandler):
         if not resp:
             raise LogicError(f'[ChatFromMiniAPI] Failed to get rsvp response for content: {self.input.query}')
 
-        similarity, bot_reply, _ = RsvpResponse(resp.get('stage', [])).parse_stages()
+        similarity, bot_reply, _, data = RsvpJson(resp, short_url=False).parse_response()
         bot_raw_reply = json.dumps(resp, ensure_ascii=False)
         save_chatbot_dialog(self.input.user_id, self.input.query, bot_reply, bot_raw_reply, similarity, datetime.datetime.now())
 
-        return resp
+        return data
 
 
 class ChatFromWechatAPI(ApiViewHandler):

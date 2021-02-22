@@ -6,7 +6,7 @@ from bases.globals import settings
 from .rsvp import Rsvp
 
 
-rsvp_conf = settings['THIRD_SETTING']['rsvp']
+rsvp_conf = settings['THIRD_SETTING']['rsvp_union']
 
 
 class RsvpBot:

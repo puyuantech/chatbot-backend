@@ -5,7 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from bases.viewhandler import ApiViewHandler
-from extensions.rsvp import RsvpResponse
+from extensions.rsvp import RsvpJson
 from models import ChatbotDialog, ChatbotDialogTag, ChatbotTag, ChatbotUserInfo, User
 from utils.decorators import login_required, params_required
 
@@ -60,7 +60,7 @@ class DialogsByUserAPI(ApiViewHandler):
         if not user_id:
             return
 
-        similarity, bot_reply, _ = RsvpResponse(res.get('stage', [])).parse_stages()
+        similarity, bot_reply, *_ = RsvpJson(res, short_url=False).parse_response()
         user_input = req.get('question')
         bot_raw_reply = json.dumps(res, ensure_ascii=False)
         save_chatbot_dialog(user_id, user_input, bot_reply, bot_raw_reply, similarity, ts)
