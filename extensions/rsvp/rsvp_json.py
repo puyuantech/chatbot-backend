@@ -220,7 +220,7 @@ class RsvpJson:
         if self.reply:
             self.reply += '\n'
 
-        self.reply += '—' * 15 + '\n您可以{}说：\n'.format('@我之后' if self.be_at else '')
+        self.reply += '—' * 12 + '\n您可以{}说：\n'.format('@我之后' if self.be_at else '')
 
         for reply in quick_reply:
             self.reply += reply['value'] + '\n'
