@@ -161,5 +161,5 @@ class RsvpResponse:
             self.parse_cards(stage.get('cards'))
             self.parse_list(stage.get('list'))
             self.parse_quick_replies(stage.get('quickReplies'))
-        return self.similarity, self.reply, self.start_miniprogram
+        return self.similarity, self.reply, self.start_miniprogram, None
 
