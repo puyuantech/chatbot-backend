@@ -3,18 +3,21 @@ import json
 
 from extensions.url_manager import UrlManager
 
+from .rsvp_response import RsvpResponse
+
 
 class RsvpJson:
 
     # TODO: get similarity from stages
 
     def __init__(self, response, wechat_group_id=None, be_at=0, short_url=True):
+        self.stages = response.get('stage', [])
         self.data = None
-        for stage in response.get('stage', []):
-            if 'message' not in stage:
-                continue
-            self.data = json.loads(stage['message'])['text']
-            break
+        for stage in self.stages:
+            try:
+                self.data = json.loads(stage['message'])['text']
+            except Exception:
+                break
 
         self.wechat_group_id = wechat_group_id
         self.be_at = be_at
@@ -227,7 +230,7 @@ class RsvpJson:
 
     def parse_response(self):
         if not self.data:
-            return self.similarity, self.reply, self.start_miniprogram, self.data
+            return RsvpResponse(self.stages, self.wechat_group_id, self.be_at).parse_stages()
 
         self.parse_prefix_message(self.data.get('prefix_message'))
 
