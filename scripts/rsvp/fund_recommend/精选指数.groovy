@@ -1,1 +1,0 @@
-prefix_message = '筛选出以下基金：'
